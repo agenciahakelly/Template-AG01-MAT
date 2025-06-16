@@ -1,0 +1,658 @@
+{% set showZoom = 'zoom-on' in productHelper.gallery %}
+
+{% if ProgressiveDiscounts %}
+    <div class="progressive-discount-banners">
+        {% for discount in ProgressiveDiscounts %}
+            {% if discount.banner %}
+                <img src="{{ discount.banner }}" alt="{{ discount.name }}"/>
+            {% endif %}
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% element 'snippets/breadcrumb' %}
+
+{% element 'schema' { 'product' : product } %}
+
+{% if settings.button_measure_active %}
+<div class="modal-theme product-ruler-modal">
+    <div class="modal-shadow"></div>
+    <div class="modal-wrapper">
+        <div class="modal-info">
+            <div class="close-icon">
+                <i class="icon icon-times"></i>
+            </div>
+            <div class="modal-info modal-info-content">
+                {% for i in 1..16 %}
+                    {% set name = attribute(settings, 'measure_name_'~i) %}
+                    {% set img = attribute(settings, 'measure_image_'~i) %}
+                    
+                    {% for item in breadcrumb %}
+                        {% if item.name|lower in name|lower %}
+                            {% if img %}
+                                <img class="icon lazyload" data-src="{{ asset(img) }}" alt="{{ name }}">
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div id="product-wrapper" class="product-wrapper">
+
+    <div class="product-box">
+        {% set discount = product.price_offer > 0 ? (100 - (product.price_offer / product.price) * 100) : false %}
+        <div class="product-gallery{{ showZoom ? ' zoom-true' }}">
+
+            {% if product.video %}
+                <div class="product-video" data-url="{{ product.video }}" aria-label="Ver V&iacute;deo">
+                    <i class="icon icon-youtube"></i>
+                    <span class="text">Ver V&iacute;deo</span>
+                </div>
+            {% endif %}
+          
+
+            <div class="product-images swiper-container">
+                {% if settings.show_product_page_seal_discount %}
+                    {% if discount %}
+                    <div class="tag-discount">
+                        -{{ discount | number_format }}%
+                    </div>
+                    {% endif %}
+                {% endif %}
+                <div class="swiper-wrapper">
+                    {% for images in product.images %}
+                        <div class="image swiper-slide {% if loop.first -%} active {%- endif %}" data-index="{{ loop.index }}">
+                            <div class="zoom">
+                                <img class="swiper-lazy" data-src="{{ images.full }}" alt="{{ product.name }}">
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <ul class="product-thumbs vertical-thumbs swiper-carousel {% if product.images | length > 4 %} show-arrows {% endif %}">
+                <div class="thumbs-list swiper-container hide-dots-desk ">
+                    <div class="swiper-wrapper">
+
+                        {% if product.images | length > 1 %}
+                            {% for images in product.images %}
+                                <li class="swiper-slide {% if loop.first -%} active {%- endif %}" data-index="{{ loop.index }}">
+                                    <div class="thumb">
+                                        <img src="{{ images.medium }}" alt="{{ product.name }}">
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        {% endif %}
+
+                    </div>
+                    <div class="dots"></div>
+                </div>
+                <div class="controls">
+                    <div class="prev">
+                        <i class="icon icon-arrow-left"></i>
+                    </div>
+                    <div class="next">
+                        <i class="icon icon-arrow-right"></i>
+                    </div>
+
+                </div>
+            </ul>
+
+        </div>
+
+        <div class="product-form" product-ref="{{product.reference ? product.reference  : 'ref-empty'}}">
+
+            <div class="product-loader loader">
+                <div class="spinner">
+                    <div class="double-bounce-one"></div>
+                    <div class="double-bounce-two"></div>
+                </div>
+                <div class="message">Atualizando informa&ccedil;&otilde;es ...</div>
+            </div>
+            
+            {% set firstProgressiveDiscount = ProgressiveDiscounts | first %}
+            
+            {% if settings.show_product_page_seals %}
+                {% if product.featured or product.free_shipping or product.new or discount or extra_tag or firstProgressiveDiscount %}
+                    <div class="product-tags">
+                        {% set replaceTags = {'src=': 'width="119" height="22" alt="Selo" src='} %}
+                        {% if product.new %}
+                            <div class="tag new">
+                                {% if Image('new') %}
+                                    {{ Image('new') | replace(replaceTags) }}
+                                {% else %}
+                                    <span class="tag-text">{{ settings.custom_seal_lancamento ? settings.custom_seal_lancamento : 'Lançamento' }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                
+                        {% if product.featured %}
+                            <div class="tag featured">
+                                {% if Image('featured') %}
+                                    {{ Image('featured') | replace(replaceTags) }}
+                                {% else %}
+                                    <span class="tag-text">{{ settings.custom_seal_destaque ? settings.custom_seal_destaque : 'Destaque' }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                
+                        {% if product.free_shipping %}
+                            <div class="tag free-shipping">
+                                {% if Image('free_shipping') %}
+                                    {{ Image('free_shipping') | replace(replaceTags) }}
+                                {% else %}
+                                    <span class="tag-text">{{ settings.custom_seal_frete ? settings.custom_seal_frete : 'Frete Grátis' }}</span>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if product.additional_button %}
+                            {% if settings.custom_seal_adicional %}
+                                <div class="tag extra">
+                                    <span class="tag-text">{{ settings.custom_seal_adicional }}</span>
+                                </div>
+                            {% else %}
+                                {% if Image('additional_button') %}
+                                <div class="tag extra">
+                                    <span class="tag-text">{{ Image('additional_button') | replace(replaceTags) }}</span>
+                                </div>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    
+                {% endif %}
+            {% endif %}
+            
+            <h1 class="product-name">
+                {{ product.name }}
+            </h1>
+
+            {% if (product.reference and settings.show_reference) or (settings.show_product_brand and product.brand) %}
+                <div class="product-main-info">
+                    <div class="product-details">
+                        <div class="product-details__item">
+                            {{ productHelper.details() }}
+                        </div>
+                        <div class="product-details__item">
+                            {{ productHelper.icons() }}
+                        </div>
+                    </div>
+                    
+                    {% if not product.upon_request and product.available and productHelper.wishlist() %}
+                        <div class="wishlist" title="Adicionar aos favoritos">
+                            {{ productHelper.wishlist() }}
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {% if settings.show_product_review %}
+                {% element 'snippets/rating' {
+                    'review': product.ranking,
+                    'total' : true
+                } %}
+            {% endif %}
+
+            {% if product.additional_message %}
+                <div class="product-additional-message">
+                    {{ product.additional_message }}
+                </div>
+            {% endif %}
+
+            {% if product.available and (product.stock > 0 or settings.without_stock_sale) and not product.upon_request %}
+
+                {% set form_classes = [] %}
+
+                {% if product.is_kit %}
+                    {% set form_classes = form_classes | merge(['is-kit']) %}
+                {% endif %}
+
+                {% if productHelper.gifts() %}
+                    {% set form_classes = form_classes | merge(['has-gift']) %}
+                {% endif %}
+
+                <form id="form_comprar" {% if form_classes | length > 0 %} class="{{ form_classes | join (' ') }}" {% endif %} method="post" data-app="product.buy-form" data-id="{{ product.id }}" action="{{ links.cart_add ~ product.id }}">
+
+                    {% set productDetails = productHelper.details() %}                    
+                    {% if 'class="dados-campo infoLancamento"' in productDetails %}
+                        <div class="product-info product-release-date">
+                            <span class="bold">Data de lan&ccedil;amento:</span> {{ product.release_date | date('d/m/Y') }}
+                        </div>
+                    {% endif %}
+
+                    {% if 'class="availability"' in productDetails %}
+                        <div class="product-info product-availability">
+                            <span class="bold">Disponibilidade:</span> {{ product.availability }}
+                        </div>
+                    {% endif %}
+
+                    {% if product.variants %}
+                        <div class="product-variants">
+
+                            <div class="tray-content">
+                                {{ productHelper.variants() }}
+                            </div>
+
+                        </div>
+                    {% endif %}
+                    
+                    <div class="ruler-product">
+                        <div class="icon-ruler">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="544pt" version="1.1" viewBox="1 -69 544.607 544" width="544pt"><g id="surface1"><path d="M 186.742188 198.046875 C 231.867188 198.046875 268.667969 170.335938 268.667969 136.386719 C 268.667969 102.433594 231.976562 74.722656 186.742188 74.722656 C 141.507812 74.722656 104.816406 102.433594 104.816406 136.386719 C 104.816406 170.335938 141.617188 198.046875 186.742188 198.046875 Z M 186.742188 96.625 C 219.597656 96.625 246.761719 114.808594 246.761719 136.382812 C 246.761719 157.960938 219.269531 176.140625 186.742188 176.140625 C 154.210938 176.140625 126.71875 157.960938 126.71875 136.382812 C 126.71875 114.808594 154.210938 96.515625 186.742188 96.515625 Z M 186.742188 96.625 " style=" stroke:none;fill-rule:nonzero;fill-opacity:1;"></path><path d="M 534.046875 250.292969 L 372.386719 250.292969 L 372.386719 136.273438 C 372.386719 61.359375 289.039062 0.355469 186.195312 0.355469 C 83.347656 0.355469 0 61.359375 0 136.273438 L 0 270.992188 C 0 339.992188 70.644531 396.945312 161.660156 405.597656 L 163.523438 405.597656 C 171.078125 406.257812 178.746094 406.804688 186.523438 406.804688 L 534.046875 406.804688 C 540.09375 406.804688 545 401.898438 545 395.851562 L 545 261.242188 C 545 255.199219 540.09375 250.292969 534.046875 250.292969 Z M 186.742188 22.367188 C 277.097656 22.367188 351.03125 73.515625 351.03125 136.386719 C 351.03125 199.253906 277.539062 250.402344 186.742188 250.402344 C 95.945312 250.402344 22.453125 199.253906 22.453125 136.382812 C 22.453125 73.515625 96.492188 22.367188 186.742188 22.367188 Z M 351.03125 200.238281 L 351.03125 250.292969 L 287.503906 250.292969 C 312.300781 239.054688 333.933594 221.859375 350.480469 200.238281 Z M 523.09375 384.898438 L 501.1875 384.898438 L 501.1875 329.476562 C 501.1875 323.433594 496.28125 318.523438 490.238281 318.523438 C 484.191406 318.523438 479.285156 323.429688 479.285156 329.476562 L 479.285156 385.007812 L 435.472656 385.007812 L 435.472656 354.886719 C 435.472656 348.839844 430.566406 343.933594 424.519531 343.933594 C 418.472656 343.933594 413.566406 348.839844 413.566406 354.886719 L 413.566406 385.007812 L 369.757812 385.007812 L 369.757812 354.886719 C 369.757812 348.839844 364.851562 343.933594 358.804688 343.933594 C 352.757812 343.933594 347.851562 348.839844 347.851562 354.886719 L 347.851562 385.007812 L 304.039062 385.007812 L 304.039062 329.476562 C 304.039062 323.433594 299.132812 318.523438 293.085938 318.523438 C 287.042969 318.523438 282.132812 323.429688 282.132812 329.476562 L 282.132812 385.007812 L 240.1875 385.007812 L 240.1875 354.886719 C 240.1875 348.839844 235.277344 343.933594 229.234375 343.933594 C 223.1875 343.933594 218.28125 348.839844 218.28125 354.886719 L 218.28125 385.007812 L 186.734375 385.007812 C 182.574219 385.007812 178.523438 385.007812 174.46875 385.007812 L 174.46875 354.886719 C 174.46875 348.839844 169.5625 343.933594 163.515625 343.933594 C 157.46875 343.933594 152.5625 348.839844 152.5625 354.886719 L 152.5625 382.378906 C 78.640625 371.425781 23 325.644531 23 270.882812 L 23 200.238281 C 54.324219 243.0625 115.988281 272.195312 187.289062 272.195312 L 523.09375 272.195312 Z M 523.09375 384.898438 " style=" stroke:none;fill-rule:nonzero;fill-opacity:1;"></path></g></svg>
+                        </div>
+                        {{ settings.button_measure_name }}
+                    </div> 
+
+                    <div class="product-gifts">
+                        {{ productHelper.gifts() }}
+                    </div>
+
+                    {% if product.is_kit %}
+                        <div class="product-kit">
+
+                            <div class="tray-content">
+                                {{ productHelper.kit() }}
+                            </div>
+                            <div class="variant-error error-message" style="display: none">
+                                Por favor, selecione as varia&ccedil;&otilde;es antes de prosseguir.
+                            </div>
+
+                        </div>
+                    {% endif %}
+
+                    {% if product.additional_information %}
+                        <div class="product-additional-fields">
+
+                            {{ product.additional_information }}
+                            <div class="additional-field-required error-message" style="display: none">
+                                Por favor, preencha os campos acima.
+                            </div>
+
+                        </div>
+                    {% endif %}
+
+                    <div class="product-price product-price-tray">
+                        {{ productHelper.pricing() }}
+                    </div>
+
+                    {% if productHelper.banner() %}
+                        {% set batch_promotion = productHelper.banner() %}
+                        <div class="product-batch-promotion {% if 'img' not in batch_promotion %} text-promotion {% endif %}">
+                            {{ batch_promotion }}
+                        </div>
+                    {% endif %}
+
+                    {% if ProgressiveDiscounts %}
+                        <div class="product-progressive-discount">
+                            <div class="title">
+                                Produto com desconto progressivo
+                                <div class="tooltip">
+                                    <i class="icon icon-help"></i>
+                                    <div class="tooltip-content">
+                                        Somente o maior desconto ser&aacute; aplicado na finaliza&ccedil;&atilde;o do pedido.
+                                    </div>
+                                </div>
+                            </div>
+                            <ul class="discounts">
+                                {% for discount in ProgressiveDiscounts %}
+                                    <li class="discount" data-name="{{ discount.name }}">
+                                        {{ discount.description }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+
+                    {% if productHelper.bonus() and 'idBonusVariacao' in productHelper.bonus() %}
+                        <div class="product-reward">
+                            {{ productHelper.bonus() }}
+                        </div>
+                    {% endif %}
+
+                    <div class="actions">
+                        <div class="tray-buy-button">
+                           {# {{ productHelper.form() }} #}
+                           <span id="span_erro_carrinho" class="blocoAlerta" style="display:none;">Selecione uma opção para variação do produto</span>
+                           <div class="page-product__quantity-and-buy">
+                                {% if not product.upon_request %}
+                                    {% if product.available %}
+                                        {% if product.stock > 0 or settings.without_stock_sale %}
+                                            {% set attribute = 'data-url="/loja/termo_aceite.php?loja='~store.id~'&idProduto='~product.id~'&store=1" data-title="TERMO DE ACEITA&Ccedil;&Atilde;O" data-modal-width="700px" data-modal-height="400px" data-toggle="modal" data-target="#modal-form"' %}
+                                            <div class="page-product__quantity">
+                                                <input id="quant" class="text" name="quant" type="text" data-stock="{{ product.stock }}" min="1" value="1" maxlength="2">
+                                                <div class="plus-minus">
+                                                    <input id="plus" class="plus" type="button" value='+' >
+                                                    <input id="minus" class="minus" type="button" value='-' >
+                                                </div>
+                                            </div>
+                
+                                            <div class="page-product__button-buy">
+                                                <div id="bt_comprar" class="remove-bg" data-app="product.buy-button">
+                                                    {% if Image('buy') %}
+                                                        <button id="button-buy" class="botao-commerce botao-comprar-image" data-tray-tst="button_buy_product" type="submit" {{ product.has_acceptance_terms == 1 ? attribute }}>{{ Image('buy') }}</button>
+                                                    {% else %}
+                                                        <button id="button-buy" class="botao-commerce botao-comprar" type="submit" data-tray-tst="button_buy_product" {{ product.has_acceptance_terms == 1 ? attribute }}>Comprar</button>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+                
+                
+                {% if settings.button_whats_product %}
+                	<div class="buy-whatsapp buy-whatsapp--page-product">
+                	    <a href="https://api.whatsapp.com/send?phone=55{{ settings.button_whats_number|replace({ '(': '', ')': '', '-': '', ' ': '', '.': '' }) }}&text={{ settings.button_whats_message|striptags|trim|convert_encoding('UTF-8', 'HTML-ENTITIES') }} Nome: {{ product.name|striptags|trim|convert_encoding('UTF-8', 'HTML-ENTITIES') }} | Ref: {{ product.reference|striptags|trim|convert_encoding('UTF-8', 'HTML-ENTITIES') }}" target="_blank">
+                	        <i class="icon icon-whatsapp v-align-middle"></i>
+                	        {{ settings.button_whats_title }}
+                	    </a>
+                	</div>
+	            {% endif %}
+	
+
+                {% if productHelper.shipping() %}
+                    <div class="product-shipping">
+                        {{ productHelper.shipping() }}
+
+                        <span class="info">
+                            <i class="icon icon-truck"></i>
+                            Frete e prazo de entrega
+                        </span>
+
+                        <form class="shipping-form">
+                            <div class="form-input">
+                                <label for="zip" class="sr-only">CEP</label>
+                                <input type="tel" class="input zip-code-mask" id="zip" name="zip" minlength="9" maxlength="9" placeholder="Informe seu cep" required>
+                            </div>
+                            <button type="submit" class="submit-shipping">
+                                Calcular
+                            </button>
+                        </form>
+
+                        <div class="result"></div>
+
+                    </div>
+                {% endif %}
+
+                {% if productHelper.social() %}
+                    <div class="product-social-share">
+                        {{ productHelper.social() }}
+                    </div>
+                {% endif %}
+
+            {% else %}
+                
+                {% if product.variants %}
+                    <div class="product-variants">
+
+                        <div class="tray-content">
+                            {{ productHelper.variants() }}
+                        </div>
+
+                    </div>
+                {% endif %}
+
+                {# This helper verify if product is available or not and generate the correct html #}
+                <div class="product-not-sale">
+                    {{ productHelper.pricing() }}
+                </div>
+
+            {% endif %}
+            
+            {% if settings.close_description_product %}
+                <div class="product-tabs short-tabs">
+                    {% element 'snippets/product-tabs' { 'product' : product } %}
+                </div>
+            {% endif %}
+
+        </div>
+    </div>
+    
+    {% if not settings.close_description_product %}
+    <div class="product-tabs long-tabs">
+        {% element 'snippets/product-tabs' { 'product' : product } %}
+    </div>
+    {% endif %}
+
+    {% if productHelper.bundle() %}
+        <div class="section-buy-together compre-junto">
+            <div class="product-cross-sell">
+                {{ productHelper.bundle() }}
+            </div>
+        </div>
+    {% endif %}
+    
+</div>
+
+{% if settings.quick_buy_custom_active %}
+    {% if not product.stock == 0 and not product.upon_request %}
+        <div class="quick-buy">
+            <div class="container">
+                <div class="quick-buy__content">
+                    <div class="quick-buy__image">
+                        <img class="lazyload" data-src="{{ product.images[0].full }}" alt="{{ product.name }}">
+                    </div>
+                    <div class="quick-buy__name">
+                        <strong>{{ product.name }}</strong>
+                    </div>
+                    <div class="quick-buy__price">
+                        {{ productHelper.pricing() }}
+                    </div>
+                    {% if product.variants or product.is_kit or product.upon_request or product.stock == 0 %}
+                        <div class="quick-buy__action quick-top">
+                            <button type="text" class="to-top">COMPRAR</button>
+                        </div>
+                    {% else %}
+                        <div class="quick-buy__action">
+                            <form id="form_comprar" {% if form_classes | length > 0 %} class="{{ form_classes | join (' ') }}" {% endif %} method="post" data-app="product.buy-form" data-id="{{ product.id }}" action="{{ links.cart_add ~ product.id }}">
+                                <div class="actions">
+                                    <div class="tray-buy-button">
+                                    <span id="span_erro_carrinho" class="blocoAlerta" style="display:none;">Selecione uma opção para variação do produto</span>
+                                    <div class="page-product__quantity-and-buy">
+                                            {% if not product.upon_request %}
+                                                {% if product.available %}
+                                                    {% if product.stock > 0 or settings.without_stock_sale %}
+                                                        {% set attribute = 'data-url="/loja/termo_aceite.php?loja='~store.id~'&idProduto='~product.id~'&store=1" data-title="TERMO DE ACEITA&Ccedil;&Atilde;O" data-modal-width="700px" data-modal-height="400px" data-toggle="modal" data-target="#modal-form"' %}
+                                                        <div class="page-product__quantity">
+                                                            <input id="quant" class="text" name="quant" type="text" data-stock="{{ product.stock }}" min="1" value="1" maxlength="2">
+                                                            <div class="plus-minus">
+                                                                <input id="plus" class="plus" type="button" value='+' >
+                                                                <input id="minus" class="minus" type="button" value='-' >
+                                                            </div>
+                                                        </div>
+                            
+                                                        <div class="page-product__button-buy">
+                                                            <div id="bt_comprar" class="remove-bg" data-app="product.buy-button">
+                                                                {% if Image('buy') %}
+                                                                    <button id="button-buy" class="botao-commerce botao-comprar-image" data-tray-tst="button_buy_product" type="submit" {{ product.has_acceptance_terms == 1 ? attribute }}>{{ Image('buy') }}</button>
+                                                                {% else %}
+                                                                    <button id="button-buy" class="botao-commerce botao-comprar" type="submit" data-tray-tst="button_buy_product" {{ product.has_acceptance_terms == 1 ? attribute }}>Comprar</button>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                    {% endif %}
+                                                {% endif %}
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+
+{% if product.related_products and settings.enable_related_products %}
+    <div class="section-product-related">
+        <div class="container">
+
+            <div class="section-header">
+                <h2 class="title-section">
+                    Produtos relacionados
+                </h2>
+            </div>
+            <div class="swiper-container hide-dots-desk">
+                <div class="list-product swiper-wrapper">
+
+                    {% for item in product.related_products %}
+                        <div class="item swiper-slide">
+                            {% element 'snippets/product' {
+                                'product' : item,
+                                'slide'   : false
+                            } %}
+                        </div>
+                    {% endfor %}
+
+                </div>
+                <div class="prev">
+                    <i class="icon icon-arrow-left"></i>
+                </div>
+                <div class="next">
+                    <i class="icon icon-arrow-right"></i>
+                </div>
+                <div class="dots"></div>
+            </div>
+
+        </div>
+    </div>
+{% endif %}
+
+{% if settings.history_position %}
+    <div class="products-history">
+        <div class="container">
+
+            <div class="section-header">
+                <h2 class="title-section">
+                    Produtos visualizados
+                </h2>
+            </div>
+
+            <div class="products-history-wrapper">
+
+                <div class="history-loader loader">
+                    <div class="spinner">
+                        <div class="double-bounce-one"></div>
+                        <div class="double-bounce-two"></div>
+                    </div>
+                    Carregando ...
+                </div>
+
+                {% element 'snippets/history' {
+                    'store.id'      : store.id,
+                    'pages.current' : pages.current,
+                    'category.id'   : category.id
+                } %}
+
+            </div>
+
+        </div>
+    </div>
+{% endif %}
+
+<script>
+    (function(){
+        let $display = document.querySelector('.product-wrapper .product-box .product-form #quant'),
+            $displayQuick = document.querySelector('.quick-buy #quant'),
+            $btnMore = document.querySelector('.product-wrapper .product-box .product-form #plus'),
+            $btnLess = document.querySelector('.product-wrapper .product-box .product-form #minus'),
+            $naoDisp = document.querySelector('.product-wrapper .product-box .product-form #email_avise');
+
+        if( $naoDisp !== null ){
+            $naoDisp.placeholder = 'Digite seu e-mail aqui';
+        }
+
+        // validar caso for null ...
+        $btnMore.addEventListener('click', function(e) {
+            e.preventDefault();
+            return $display.value++;
+        });
+    
+        // validar caso for null ...
+        $btnLess.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            if( $display.value > 1 ) {
+                return $display.value--;
+            }
+        });
+        
+        if($displayQuick){
+            $btnMore.addEventListener('click', function(e) {
+                e.preventDefault();
+                return $displayQuick.value++;
+            });
+            
+            $btnLess.addEventListener('click', function(e) {
+                e.preventDefault();
+    
+                if( $displayQuick.value > 1 ) {
+                    return $displayQuick.value--;
+                }
+            });
+        }
+        
+    })();
+    
+    (function(){
+        let $display = document.querySelector('.quick-buy #quant'),
+            $displayDefault = document.querySelector('.product-wrapper .product-box .product-form #quant'),
+            $btnMore = document.querySelector('.quick-buy #plus'),
+            $btnLess = document.querySelector('.quick-buy #minus'),
+            $naoDisp = document.querySelector('.quick-buy #email_avise');
+
+        if( $naoDisp !== null ){
+            $naoDisp.placeholder = 'Digite seu e-mail aqui';
+        }
+
+        // validar caso for null ...
+        if($btnMore){
+            $btnMore.addEventListener('click', function(e) {
+                e.preventDefault();
+                return $display.value++;
+            })
+        }
+        
+        // validar caso for null ...
+        if($btnLess){
+            $btnLess.addEventListener('click', function(e) {
+                e.preventDefault();
+    
+                if( $display.value > 1 ) {
+                    return $display.value--;
+                }
+            });
+        }
+        
+        if($displayDefault){
+            if($btnMore){
+                $btnMore.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    return $displayDefault.value++;
+                });
+            }
+            
+            if($btnLess){
+                $btnLess.addEventListener('click', function(e) {
+                    e.preventDefault();
+        
+                    if( $displayDefault.value > 1 ) {
+                        return $displayDefault.value--;
+                    }
+                });
+            }
+        }
+    })();
+</script>

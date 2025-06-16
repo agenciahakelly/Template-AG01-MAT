@@ -1,0 +1,72 @@
+{% if settings.popup_active %}
+<div class="modal-theme newsletter-modal init-start {% if settings.popup_window_active %} modal-exit {% endif %}">
+    <div class="shadow"></div>
+    <div class="overflow">
+        <div class="center">
+            <div class="box-center">
+                <div class="close-icon"><i class="icon icon-times"></i></div>
+                <div class="modal-box flex">
+                    {% if settings.popup_image %}
+                    <div class="box-image flex justify-center align-center">
+                        <img class="lazyload" data-src="{{ asset(settings.popup_image) }}" alt="Newsletter"/>
+                    </div>
+                    {% endif %}
+                    <div class="box-text flex justify-center align-center">
+                        <div class="text-content">
+                            <div class="title">{{ settings.popup_title }}</div>
+                            <p>{{ settings.popup_description }}</p>
+                        </div>
+                        <form action="{{ links.newsletter }}" method="POST">
+                            <input type="hidden" name="loja" value="{{ store.id }}" />
+                            <input spellcheck="false" autocomplete="off" name="name" class="text mail" type="text" placeholder="Digite seu nome" />
+                            <input spellcheck="false" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$" required autocomplete="off" name="email" class="text mail" type="email" placeholder="Digite seu e-mail" />
+                            <button class="news-button">{{ settings.popup_button }}</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function($) {
+
+    var checkCookie = Cookies.get('modal-news');
+    var modal = jQuery('.newsletter-modal');
+    
+    if(modal.hasClass('modal-exit')){
+        if(window.innerWidth > 768){
+            jQuery(document).mouseleave(function(){
+                if(modal.hasClass('init-start') && !checkCookie){
+                    modal.addClass('active');
+                } 
+            });
+        }else{
+            if(modal.hasClass('init-start') && !checkCookie){
+                setInterval(function() {
+                    modal.addClass('active');
+                },{{ settings.popup_seconds }}000);    
+            }
+        }
+    }else{
+        if(modal.hasClass('init-start') && !checkCookie){
+            setInterval(function() {
+                modal.addClass('active');
+            },{{ settings.popup_seconds }}000);    
+        }
+    }
+    
+    jQuery('.newsletter-modal .modal-box .box-text form').on('submit', function(){
+        Cookies.set('modal-news', 'true', { expires: {{ settings.popup_days }} });
+        modal.addClass('loaded');
+    });
+    
+    jQuery('.newsletter-modal .close-icon,.newsletter-modal .shadow').on('click', function() {
+        Cookies.set('modal-news', 'true', { expires: {{ settings.popup_days }} });
+        modal.addClass('loaded');
+    });
+
+})(jQuery);    
+</script>
+{% endif %}

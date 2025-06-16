@@ -1,0 +1,21 @@
+{% for i in 1..8 %}
+    {% set show = attribute(settings, 'show_footer_custom_seal_'~i) %}
+    {% set name = attribute(settings, 'name_footer_custom_seal_'~i) %}
+    {% set link = attribute(settings, 'link_footer_custom_seal_'~i) %}
+    {% set blank = attribute(settings, 'link_blank_footer_custom_seal_'~i) %}
+    {% set image = attribute(settings, 'image_footer_custom_seal_'~i) %}
+
+    {% if show and image %}
+        <li class="footer-custom-seal" data-name="{{ name }}">
+            {% if link %}
+                <a href="{{ link }}" {{ blank ? 'target="_blank" rel="noopener noreferrer"'}}>
+            {% endif %}
+                    <div>
+                        <img class="lazyload" data-src="{{ asset(image) }}" title="{{ name }}" alt="{{ name }}"/>
+                    </div>
+            {% if link %}
+                </a>
+            {% endif %}
+        </li>
+    {% endif %}
+{% endfor %}

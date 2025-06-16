@@ -1,0 +1,176 @@
+ <div class="cart">
+	<div class="cart-backdrop"></div>
+
+	<section
+		id="cart"
+		class="dropdown cart__dropdown"
+		aria-label="Carrinho"
+	>
+		<div class="cart__vue js-vue-cart">
+		    <div class="cart__vue__header">
+		       <div class="cart__vue__icon">
+		            <i class="icon icon-arrow-left"></i>
+		            Fechar 
+		       </div>
+		       <div class="cart__vue__text">
+		            <span>Carrinho de Compras</span>
+		       </div>
+		    </div>
+		    {% if settings.alert_cart_active %}
+    		    <div class="progress-bar-custom" data-price="{{ settings.alert_cart_price|trim|replace({'.': ''})|replace({',': '.'}) }}" text-primary="{{ settings.alert_cart_text_primary }}" 
+    		    text-success="{{ settings.alert_cart_text_success }}">
+                    <div class="progress-bar-custom__content">
+                        <div class="progress-bar-custom__percentage"></div>
+                    </div>
+                    <div class="progress-bar-custom__descriptions"></div>
+                </div>
+		    {% endif %}
+			<div class="dropdown__content">
+				<template v-if="!products.length">
+					<div class="cart__empty">
+						<p>
+							Seu carrinho est&aacute; vazio.
+						</p>
+					</div>
+				</template>
+
+				<template v-else-if="true === loading">
+					<div class="cart__empty">
+						<img
+							src="{{ asset('img/loading.gif') }}"
+							width="24"
+							alt="Carregando informa&ccedil;&otilde;es"
+							title="Carregando informa&ccedil;&otilde;es"
+						>
+					</div>
+				</template>
+
+				<template v-else>
+					<div
+						id="cart_products"
+						role="region"
+						aria-live="assertive"
+						aria-relevant="additions removals"
+						class="cart__products"
+					>
+						<div class="cart__product" v-for="product in products">
+							<div class="cart__product__image-container">
+								{% if utils.is_https %}
+									{% set url_ending = 'https' %}
+								{% else %}
+									{% set url_ending = 'http' %}
+								{% endif %}
+
+								<a
+									v-bind:href="product.productDetails.url.{{ url_ending }}"
+									class="cart__product__link"
+								>
+									<template v-if="Object.keys(product.productImage).length > 0">
+										<img
+											class="cart__product__image"
+											v-bind:src="product.productImage.thumbs[90].{{ url_ending }}"
+											v-bind:title="product.productDetails.name"
+										>							
+									</template>
+
+									<template v-else>
+										<svg class="icon cart__product__no-photo icon-camera-off"><use xlink:href="#icon-camera-off"></use></svg>
+									</template>
+								</a>
+							</div>
+							
+							<div class="cart__product__details">
+								<a
+									v-bind:href="product.productDetails.url.{{ url_ending }}"
+									class="cart__product__name"
+									v-text="product.productDetails.name"
+								></a>
+
+								<span
+									class="cart__product__qtd"
+									v-text="product.quantity"
+								></span>
+								
+								<template v-if="product.productVariant">
+									<ul class="cart__product__list">
+										<template v-for="variant in product.productVariant.Sku">
+											<li
+												class="cart__product__item"
+												v-text="variant.type + ': ' + variant.value"
+											></li>
+										</template>
+									</ul>
+								</template>
+
+								<span
+									class="cart__product__price"
+									v-text="'R$ ' + (product.cartPrice).toLocaleString('pt-BR', {minimumFractionDigits: 2})"
+								></span>
+
+								<button
+									class="cart__remove"
+									v-on:click="deleteProduct(product.cart.product_id,product.cart.variant_id,product.productDetails.name,product.cart.additional_information)"
+									aria-label="Remover"
+								>
+									
+									<i class="icon icon-times cart__remove__icon"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				</template>
+			</div>
+			
+			<footer v-if="products.length" class="dropdown__footer cart__footer">
+				<div class="cart__options">
+					<button
+						class="cart__remove-all"
+						v-on:click="deleteAll()"
+						aria-controls="cart_products"
+					>
+						<span class="cart__remove-all__text">Remover tudo</span>
+					</button>
+				</div>
+
+				<span class="cart__total-price">
+					Total:
+					<span
+						class="cart__total-price__value"
+						v-text="'R$ ' + (totalPrice).toLocaleString('pt-BR', {minimumFractionDigits: 2})"
+					></span>
+				</span>
+
+				<a
+					href="{{ links.cart }}"
+					class="cart__bt bt bt--forward"
+				>
+					Finalizar Compra
+				</a>
+				<a
+					href="javascript:;"
+					class="cart__bt bt bt--forward buy--continue"
+				>
+					Continuar Comprando
+				</a>
+			</footer>
+
+			<div v-else class="dropdown__footer align-center">
+				<p>Adicione produtos ao carrinho e eles aparecer&atilde;o aqui.</p>
+			</div>
+
+			{% if settings.show_login_side_cart %}
+				<div class="cart__user-actions">
+					<div class="cart__user-actions-text">
+						<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="27" height="33" viewBox="5.34 6.02 21.32 21.96"><path d="M26.1615 27.4789V24.9386C26.1615 23.5911 25.6263 22.2988 24.6734 21.346C23.7206 20.3932 22.4283 19.8579 21.0809 19.8579H10.9195C9.57201 19.8579 8.27972 20.3932 7.3269 21.346C6.37409 22.2988 5.83881 23.5911 5.83881 24.9386V27.4789" stroke="currentColor"></path><path d="M15.9999 16.6824C18.8059 16.6824 21.0806 14.4077 21.0806 11.6017C21.0806 8.79576 18.8059 6.52106 15.9999 6.52106C13.1939 6.52106 10.9192 8.79576 10.9192 11.6017C10.9192 14.4077 13.1939 16.6824 15.9999 16.6824Z" stroke="currentColor"></path></svg>
+						<p>{{ settings.message_login_side_cart }}</p>
+					</div>
+					
+					<div class="cart__user-actions-links">
+						<a class="cart__user-actions-login" href="{{ links.login }}">Entrar</a>
+						<a class="cart__user-actions-register" href="{{ links.register }}">Cadastrar</a>
+					</div>
+				</div>
+			{% endif %}
+		</div>
+	</section>
+</div>

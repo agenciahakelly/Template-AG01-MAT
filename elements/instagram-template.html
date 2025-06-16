@@ -1,0 +1,94 @@
+{% if settings.feed_instagram_active %}
+<script type="text/javascript" src="{{ asset('js/plugin-instafeed.js') }}"></script>
+<div class="template-instagram">
+     <div class="section-header">
+        <h2 class="title-section">
+            {% if settings.feed_instagram_link %}
+                <a href="{{ settings.feed_instagram_link }}" target="_blank">
+                    {{ settings.feed_instagram_title }}
+                </a>
+            {% else %}
+                {{ settings.feed_instagram_title }}
+            {% endif %}
+        </h2>
+    </div>
+    <div class="container swiper-container">
+        <div class="swiper-wrapper" id="instafeed"></div>
+        <div class="prev">
+            <i class="icon icon-arrow-left"></i>
+        </div>
+        <div class="next">
+            <i class="icon icon-arrow-right"></i>
+        </div>
+        <div class="dots"></div>
+    </div>
+    
+</div>
+<script>
+    var feed = new Instafeed({
+        accessToken: '{{ settings.feed_instagram_token }}',
+        limit: {{ settings.feed_instagram_photos }},
+        target: 'instafeed',
+        success: function(){
+            jQuery(document).ajaxComplete(function(){
+                if(jQuery('.template-instagram.not-slide-drag').length == 0){
+                    
+                    if(window.innerWidth > 768){
+                        jQuery('.template-instagram .item.swiper-slide').length <= 4 ? jQuery('.template-instagram').addClass('not-slide-drag') : '';
+                    }else{
+                        jQuery('.template-instagram .item.swiper-slide').length <= 2 ? jQuery('.template-instagram').addClass('not-slide-drag') : '';
+                    }
+                    
+                    $(document).ready(() => {
+                        let swiper_instagram = new Swiper('.template-instagram .swiper-container', {
+                            effect: 'slide',
+                            speed:1000,
+                            spaceBetween: 25,
+                            lazy: {
+                                loadPrevNext: true,
+                            },
+                            navigation: {
+                                nextEl: '.template-instagram .next',
+                                prevEl: '.template-instagram .prev'
+                            },
+                            autoplay: {
+                                delay: 3000,
+                            },
+                            loop: false,
+                            breakpoints :{
+                                0 :{
+                                    slidesPerView : 2,
+                                },
+                                600 :{
+                                    slidesPerView : 2,
+                                },
+                                1000 :{
+                                    slidesPerView : 4,
+                                },
+                                1200 :{
+                                    slidesPerView : 4,
+                                }
+                                
+                            },
+                            pagination: {
+                                el                : '.template-instagram .dots',
+                                type              : 'bullets',
+                                bulletClass       : 'dot',
+                                bulletActiveClass : 'dot-active',
+                                clickable         : true
+                            },
+                            on: {
+                                init: function () {
+                                    jQuery('.template-instagram').addClass('active-slide');
+                                },
+                            }
+                        });
+                    });
+                };
+            });
+        },
+    });
+
+    feed.run();
+</script>
+{% endif %}

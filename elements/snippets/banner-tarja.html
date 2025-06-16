@@ -1,0 +1,33 @@
+{% if settings.show_banner_stripe %}
+<div class="block-custom banner-stripe flex justify-between">
+    <div class="container">
+        <div class="block-custom__content">
+            {% for i in 1..6 %}
+                {% set title = attribute(settings, 'banner_stripe_title_'~i) %}
+                
+                {% set subtitle = attribute(settings, 'banner_stripe_sub_'~i) %}
+                
+                {% set link = attribute(settings, 'banner_stripe_link_'~i) %}
+                
+                {% set img = attribute(settings, 'banner_stripe_icon_'~i) %}
+                
+                {% if title %}
+                <div class="item">
+                    <a class="flex justify-center align-center flex-column" href="{{ link ? link : 'javascript:;' }}" aria-label="{{ title }}">
+                        {% if img %}
+                            <img loading="lazy" class="icon lazyload" data-src="{{ asset(img) }}" alt="{{ title }}">
+                        {% endif %}
+                        <span class="text flex flex-column justify-center align-left">
+                            <strong>
+                                {{ title }}
+                            </strong> 
+                            {{ subtitle }}
+                        </span>
+                    </a>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}

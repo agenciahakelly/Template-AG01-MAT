@@ -1,0 +1,302 @@
+{% set whatsappNumber = Translation('ag_telefone_1') %}
+{% set phone = Translation('ag_telefone_2') %}
+{% set email = Translation('ag_email_1') %}
+
+{% if settings.countdown_timer_showcase_active or settings.countdown_timer_single_active %}
+    {% if settings.countdown_timer_products %}
+        <div class="countdown-products-params d-none hidden hide" 
+                value-products="{{ settings.countdown_timer_products }}" 
+                value-timer="{{ settings.countdown_timer_date_countdown }}"
+                value-active-product-showcase="{{ settings.countdown_timer_showcase_active }}"
+                value-active-product-page="{{ settings.countdown_timer_single_active }}"
+            >
+        </div>
+    {% endif %}
+{% endif %}
+
+<!-- Banner Baixo nativo da Tray -->
+{% element 'snippets/banner-bottom' %}
+
+{% if settings.button_anchor_active or settings.button_insta_active %}
+<div class="action-footer-fixed">
+    {% if settings.button_anchor_active %}
+    <div class="action-footer-fixed__anchor">
+        <i class="icon icon-arrow-right"></i>
+    </div>
+    {% endif %}
+    {% if settings.button_insta_active %}
+    <div class="action-footer-fixed__instagram">
+        <a href="{{ settings.button_insta_user }}" rel="noopener" target="_blank">
+            <i class="icon icon-instagram"></i>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+
+{% if settings.showcase_custom_active_cart %}
+
+    {% set customProductsCategoryCart = settings.showcase_custom_cart %}
+    
+    {% set customActiveShowcaseCart = settings.showcase_custom_active_cart %}
+    
+    {% set customCategoryNameCart = Categories( { "id": customProductsCategoryCart } ) %}
+    
+    {% set optionCustomActiveShowcaseCart = settings.showcase_custom_name_cart %}
+    
+    {% set customProductsTypeCart = settings.showcase_custom_filter_cart %}
+    
+    {% set customProductsOrderCart = settings.showcase_custom_order_cart %}
+    
+    {% set customProductsQuantityCart = settings.showcase_custom_quantity_cart %}
+    
+    {% if settings.showcase_rand_products %}
+        {% set productsCategoryCart = Products({
+            'filter': customProductsTypeCart == 'all_products' ? 'available' : customProductsTypeCart,
+            'limit': customProductsQuantityCart,
+            'categories': customProductsCategoryCart,
+            'order': 'rand'
+        }) %}
+    {% else %}
+        {% set productsCategoryCart = Products({
+            'filter': customProductsTypeCart == 'all_products' ? 'available' : customProductsTypeCart,
+            'limit': customProductsQuantityCart,
+            'categories': customProductsCategoryCart,
+            'order': {
+                (customProductsOrderCart 
+                == 'priceHigh' ? 'price' : customProductsOrderCart 
+                == 'priceLow' ? 'price' : customProductsOrderCart): customProductsOrderCart 
+                == 'quantity_sold' ? 'desc' : customProductsOrderCart 
+                == 'priceLow' ? 'asc' : customProductsOrderCart 
+                == 'priceHigh' ? 'desc' : 'desc',
+            }
+        }) %}
+    {% endif %}
+
+    <div class="custom-showcase-cart" data-category="{{ settings.showcase_custom_cart }}">
+        {% if settings.showcase_custom_name_cart %}
+        <div class="section-header">
+            <h2 class="title-section">{{ settings.showcase_custom_name_cart }}</h2>
+        </div>
+        {% endif %}
+        <div class="list-product swiper-container">
+            <div class="list-product__items swiper-wrapper">
+                {% for item in productsCategoryCart %}
+                    <div class="item swiper-slide {{ loop.index == 1 ? '' : 'hide-item' }}" data-index="{{ loop.index }}">
+                        {% element 'snippets/products-cart' {
+                            product : item,
+                            slide   : false
+                        } %}
+                    </div>
+                {% endfor %}
+            </div>
+            <div class="prev">
+                <i class="icon icon-arrow-left"></i>
+            </div>
+            <div class="next">
+                <i class="icon icon-arrow-right"></i>
+            </div>            
+            <div class="dots"></div>
+        </div>
+    </div>
+{% endif %}
+
+<footer class="footer {% if 'home' not in pages.current %} with-border {% endif %}">
+    {% if settings.news_active %}
+    <div class="footer-main footer-padding">
+        <div class="container"> 
+            
+            <div class="newsletter flex justify-between align-center">
+                <div class="info flex align-center">
+                    <div class="icon v-align-middle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="svg-icon" viewBox="0 0 1024 1024" version="1.1"><path d="M910.464 901.632 113.536 901.632c-46.272 0-83.904-37.504-83.904-83.84L29.632 230.656c0-46.336 37.568-83.904 83.904-83.904l796.928 0c46.272 0 83.84 37.568 83.84 83.904l0 587.2C994.24 864.128 956.672 901.632 910.464 901.632L910.464 901.632zM952.32 230.656c0-23.168-18.752-41.92-41.856-41.92L113.536 188.736c-23.168 0-41.92 18.752-41.92 41.92l0 587.2c0 23.104 18.752 41.856 41.92 41.856l796.928 0c23.104 0 41.856-18.752 41.856-41.856L952.32 230.656 952.32 230.656zM785.536 391.552c-1.152 1.088-2.432 1.664-3.648 2.368L571.264 604.544c-32.768 32.768-85.824 32.768-118.656 0L241.344 393.216c-0.064 0-0.128-0.064-0.192-0.128L181.76 333.76c-8.128-8.192-8.128-21.44 0-29.632 8.128-8.192 21.44-8.192 29.632 0L218.368 311.04 218.368 310.976l263.936 263.936c16.448 16.32 42.944 16.32 59.328 0l210.944-211.008c0.704-1.024 1.28-2.304 2.176-3.264l61.568-61.568c8.576-8.448 22.4-8.448 30.848 0 8.512 8.512 8.512 22.336 0 30.784L785.536 391.552 785.536 391.552zM279.936 621.056c8.128-8.128 21.376-8.128 29.568 0 8.256 8.192 8.256 21.504 0 29.696l-97.6 97.728c-8.192 8.064-21.44 8.064-29.696 0-8.192-8.32-8.192-21.568 0-29.824L279.936 621.056 279.936 621.056zM738.432 614.144l102.976 102.976c8.512 8.576 8.512 22.528 0 30.976-8.64 8.576-22.464 8.576-30.976 0l-102.976-103.04c-8.576-8.448-8.576-22.4 0-30.912C716.032 605.632 729.856 605.632 738.432 614.144L738.432 614.144z"/></svg>
+                    </div>
+                    <div class="text">
+                        <div class="first">{{ settings.footer_news_title }}</div>
+                        <div class="last">{{ settings.footer_news_subtitle }}</div>
+                    </div>
+                </div>
+
+                <form class="form" action="/mvc/store/newsletter/" method="post">
+                    <input type="hidden" name="loja" value="{{ store.id }}">
+                    <input type="text" class="field" name="name" placeholder="Digite o seu nome" required spellcheck="false" autocomplete="off">
+                    <input type="email" class="field" name="email" placeholder="Digite seu e-mail" required spellcheck="false" autocomplete="off">
+                    <button type="submit" class="button news-button" title="Cadastrar" aria-label="Cadastrar">
+                        <span>{{ settings.footer_news_button }}</span>
+                        <i class="icon icon-arrow-right"></i>
+                    </button>
+                </form>
+
+            </div>            
+
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="cols">
+        <div class="container flex justify-between f-wrap">
+            <div class="box box-logo">
+                <a class="logo" href="{{ store.url }}" title="{{ store.name }}">
+                    {% if settings.footer_logo %}
+                        <img src="{{ asset(settings.footer_logo) }}" alt="{{ store.name }}" width="auto" height="auto">
+                    {% elseif settings.logo %}
+                        <img src="{{ asset(settings.logo) }}" alt="{{ store.name }}" width="auto" height="auto">
+                    {% endif %}
+                </a> 
+                <div class="box-logo-socials">
+                    {% element 'snippets/social-media' %}
+                </div>
+            </div>
+            <div class="box box-categories">
+                <div class="title">Categorias <i class="icon icon-arrow-down"></i></div>
+                <div class="overflow">
+                    <ul class="list">
+                        {% for category in categories %}
+                            <li>
+                                <a href="{{ category.link }}" title="{{ category.name }}">
+                                    {{ category.name }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                        
+                    </ul>
+                </div>
+            </div>
+            <div class="box box-pages">
+                <div class="title">Institucional <i class="icon icon-arrow-down"></i></div>
+                <div class="overflow">
+                    <ul class="list">
+                        {% for custom in pages.custom %}
+                        <li>
+                            <a href="{{ custom.url }}" title="{{ custom.name }}">{{ custom.name }}</a>
+                        </li>
+                        {% endfor %}
+                        <li>
+                            <a href="{{ links.contact }}" title="Fale Conosco">Fale Conosco</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="box box-infos">
+                <div class="title">Atendimento <i class="icon icon-arrow-down"></i></div>
+                <div class="overflow">
+                    <ul class="list"> 
+                    
+                        {% if whatsappNumber %}
+                        <li>
+                            {% element 'snippets/whatsapp' { 'number': whatsappNumber, 'include_text' : false } %}
+                        </li>
+                        {% endif %}
+                        
+                        {% if phone %}
+                        {% set link = phone | replace({'(': '', ')': '', '-': '', ' ': ''}) %}
+                        <li>
+                            <a href="tel:{{ link }}" title="Telefone: {{ phone }}">
+                                <i class="icon icon-phone v-align-middle"></i>
+                                {{ phone }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        {% if email %}
+                        <li>
+                            <a href="mailto:{{ email }}" title="Email: {{ email }}">
+                                <i class="icon icon-email v-align-middle"></i>
+                                {{ email }}
+                            </a>
+                        </li>
+                        {% endif %}
+                        
+                        
+                        {% if Translation('ag_atendimento') %}
+                        <li class="hour">
+                            <div class="flex">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" style=""><path d="M12 2c5.514 0 10 4.486 10 10s-4.486 10-10 10-10-4.486-10-10 4.486-10 10-10zm0-2c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm5.848 12.459c.202.038.202.333.001.372-1.907.361-6.045 1.111-6.547 1.111-.719 0-1.301-.582-1.301-1.301 0-.512.77-5.447 1.125-7.445.034-.192.312-.181.343.014l.985 6.238 5.394 1.011z"></path></svg>
+                                <span>Horário de Atendimento:</span>
+                            </div>
+                            <div class="text">
+                                <span>{{ Translation('ag_atendimento') }}</span>
+                            </div>
+                        </li>
+                        {% endif %}
+
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="box payments-seals">
+                <div class="overflow">   
+                    {% if paymentMethods.order or paymentMethods.credit %}
+                        <div class="title">Formas de pagamento</div>
+                        {% element 'snippets/payment-list' %}
+                    {% endif %}
+                </div>
+                
+                <div class="overflow">              
+                    <div class="title">Selos de Seguran&ccedil;a</div>
+                    <ul class="security-seals flex f-wrap">                    
+    
+                        <li class="google-seal">
+                            <a href="https://transparencyreport.google.com/safe-browsing/search?url={{ store.url }}" target="_blank" rel="noreferrer noopener" title="Google Safe Browsing">
+                                <span class="icon icon-shield vertical-align"></span>
+                                <span class="icon icon-google vertical-align"></span>
+                            </a>
+                        </li>
+    
+                        {% if seals.ebit %}
+                            <li class="ebit-seal">
+                                {{ seals.ebit }}
+                            </li>
+                        {% endif %}
+            
+                        {% if seals.hackersafe %}
+                            <li class="loja-protegida-seal">
+                                {{ seals.hackersafe }}
+                            </li>
+                        {% endif %}
+
+                        <!-- FOOTER CUSTOM SEALS -->
+                        {% element 'snippets/footer-custom-seals' %}
+    
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+    
+    <!-- Banner rodapé nativo da Tray -->
+    {% element 'snippets/banner-line' %}
+
+    <div class="copy">
+        <div class="container flex align-center flex-column">
+            
+            {# {% if Translation('ag_mensagem_rodape') %}
+                <div class="text">{{ Translation('ag_mensagem_rodape') }}</div>
+            {% endif %} #}
+
+            {% if settings.custom_message_footer %}
+                <div class="text">{{ settings.custom_message_footer }}</div>
+            {% endif %}
+
+            <div class="tray">
+                <div class="credits-partner sama-partner">
+                    <span>Desenvolvimento 
+                        <a href="https://www.samathemes.com.br/" rel="noopener" target="_blank">
+                            <img src="{{ asset('img/logo-rodape-loja-sama-themes-03-05-23.png') }}" width="127" height="18" alt="Sam&aacute; Themes"/>
+                        </a>
+                    </span>
+                </div>
+              
+                {% element 'snippets/credits' %}
+            </div>
+            {% if tray.theme_configs.custom_theme_preview %}
+                <div class="mode-preview">
+                    <a href="/mvc/store/home/reset_opencode_preview?loja={{ store.id }}">Sair modo preview</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</footer>

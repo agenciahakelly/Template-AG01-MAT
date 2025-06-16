@@ -1,0 +1,16 @@
+{% if settings.video_home_active %}
+    {% set videoHome = settings.video_home_link|split('watch?v=')[1] %}
+    
+    <div id="video-home">
+        <div class="container">
+            {% if settings.video_home_title %}
+                <div class="section-header">
+                    <h2 class="title-section">{{ settings.video_home_title }}</h2>
+                </div>
+            {% endif %}
+            <div class="video-item flex">
+                <iframe loading="lazy" width="560" height="315" src="https://www.youtube-nocookie.com/embed/{{ videoHome }}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+{% endif %}

@@ -1,0 +1,90 @@
+{% if type %}
+    
+    {% set quantity = quantity | default(24) %}
+    
+    {% set newTitle = newTitle %}
+    
+    {% set newOrder = newOrder %}
+    
+    {% if type == 'top_seller' %}
+
+        {% set products = Products({
+            'filter': ['available'],
+            'order' : { 'quantity_sold': 'desc' },
+            'limit' : quantity,
+            'order': {
+                (newOrder 
+                == 'priceHigh' ? 'price' : newOrder 
+                == 'priceLow' ? 'price' : newOrder): newOrder 
+                == 'quantity_sold' ? 'desc' : newOrder 
+                == 'priceLow' ? 'asc' : newOrder 
+                == 'priceHigh' ? 'desc' : 'desc',
+            }
+        }) %}
+
+    {% else %}
+        {% if settings.showcase_rand_products %}
+
+            {% set products = Products({
+                'filter': [type, 'available'],
+                'limit' : quantity,
+                'order' : 'rand'
+            }) %}
+
+        {% else %}
+
+            {% set products = Products({
+                'filter': [type, 'available'],
+                'limit' : quantity,
+                'order': {
+                    (newOrder 
+                    == 'priceHigh' ? 'price' : newOrder 
+                    == 'priceLow' ? 'price' : newOrder): newOrder 
+                    == 'quantity_sold' ? 'desc' : newOrder 
+                    == 'priceLow' ? 'asc' : newOrder 
+                    == 'priceHigh' ? 'desc' : 'desc',
+                }
+            }) %}
+
+        {% endif %}
+    {% endif %}
+    
+    
+        {% if products | length > 0 %}
+            <div class="section-showcase">
+                <div class="container">
+    
+                    <div class="section-header">
+                        <h2 class="title-section">
+                            {{ newTitle }}
+                        </h2>
+                    </div>
+                    
+                    <div class="list-product {{ settings.showcase_carousel ? 'flex f-wrap swiper-container' }}">
+                        <div class="list-product__items {{ settings.showcase_carousel ? 'swiper-wrapper' : 'flex f-wrap' }}">
+                            {% for item in products %}
+                                {% if settings.show_product_stock_on_listing %}
+                                    {% if item.available and item.stock > 0 and not item.upon_request %}
+                                        <div class="item swiper-slide">
+                                            {% element 'snippets/product' {
+                                                product : item,
+                                                slide   : false
+                                            } %}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="item swiper-slide">
+                                        {% element 'snippets/product' {
+                                            product : item,
+                                            slide   : false
+                                        } %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+    
+                </div>
+            </div>
+        {% endif %}
+{% endif %}

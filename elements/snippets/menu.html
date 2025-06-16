@@ -1,0 +1,226 @@
+{% set more_quantity =  settings.menu_quantity_categories ? settings.menu_quantity_categories : 0 %}
+
+{% if categories | length > more_quantity %}
+    {% set show_categories = categories | slice(0, more_quantity) %}
+    {% set more_categories = categories | slice(more_quantity) %}
+{% else %}
+    {% set show_categories = categories %}
+    {% set more_categories = null %}
+{% endif %}
+
+<nav class="nav">
+    <div class="container">
+        <ul class="list flex {% if categories | length > 5 %} justify-between {% elseif categories | length < 5 and categories | length > 2 %} justify-around {% else %} justify-center {% endif %}">
+            
+            {% if settings.menu_all_categories %}
+                <li class="first-level sub all-categories">
+                    <span role="button" title="{{ settings.menu_all_categories_title }}">
+                        {% if settings.menu_all_categories_icon %}
+                        <div class="category-image">
+                            <img class="lazyload" data-src="{{ asset(settings.menu_all_categories_icon) }}" alt="Todos os Departamentos">
+                        </div>
+                        {% endif %}
+                        <div class="name">
+                            {{ settings.menu_all_categories_title }}
+                        </div>
+                    </span>
+                    <ul class="sub-list second-level">  
+                        <ul class="wrapper-categories">
+                            {% for category in categories %}                            
+                                <li class="{%- if category.children %} sub {%- endif %}">                                
+                                    <a href="{{ category.link }}" title="{{ category.name }}">{{ category.name }}</a>
+                                    {% if category.children %}
+                                        <ul class="sub-list second-level">
+
+                                            {% for level2 in category.children %}
+                    
+                                                <li {% if level2.children %} class="sub" {% endif %}>
+                                                    
+                                                    <a href="{{ level2.link }}" title="{{ level2.name }}">{{ level2.name }}</a>
+                                                
+                                                    {% if level2.children %}
+                                                    <ul class="sub-list third-level">
+                                                        {% for level3 in level2.children %}
+                                                        <li>
+                                                            <a href="{{ level3.link }}" title="{{ level3.name }}">{{ level3.name }}</a>
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                    {% endif %} 
+                    
+                                                </li>
+                    
+                                            {% endfor %}
+                                        </ul>
+                                    {% endif %} 
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </ul> 
+                                       
+                </li>
+            {% endif %}
+            
+            {% for category in show_categories %}
+                <li class="first-level {%- if category.children %} sub {%- endif %}">
+                    
+                    <a href="{{ category.link }}" title="{{ category.name }}">
+                        {% if category.images[0] %}
+                            <div class="category-image">
+                                <img class="lazyload" data-src="{{ category.images[0] }}" alt="{{ category.name }}">           
+                            </div>
+                        {% endif %}
+                        <div class="name">
+                            {{ category.name }}
+                        </div>
+                    </a>
+                    
+                    {% if category.children %}
+                    <ul class="sub-list second-level {{settings.menu_category_active ? 'products-show' : ''}}">
+                    
+                            <ul class="categories-children">
+                                
+                                {% for level2 in category.children %}
+        
+                                    <li {% if level2.children %} class="sub" {% endif %}>
+                                        
+                                        <a href="{{ level2.link }}" title="{{ level2.name }}">{{ level2.name }}</a>
+                                    
+                                        {% if level2.children %}
+                                        <ul class="sub-list third-level">
+                                            {% for level3 in level2.children %}
+                                            <li>
+                                                <a href="{{ level3.link }}" title="{{ level3.name }}">{{ level3.name }}</a>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% endif %} 
+        
+                                    </li>
+        
+                                {% endfor %} 
+                            </ul>  
+                            
+                            
+                            {% if settings.menu_category_active %}
+                                <div class="category-product">
+                                    
+                                    {% set productsCategory = Products({
+                                        'filter': 'available',
+                                        'limit': 1,
+                                        'categories': category.id,
+                                        'order': 'rand',
+                                    }) %}
+                                        
+                                    {% if productsCategory|length > 0 %}
+                                        <div class="list-product flex f-wrap ">
+                                            <div class="list-product__items">
+                                                {% for productCategoryMenu in productsCategory %}
+                                                    {% if settings.show_product_stock_on_listing %}
+                                                        {% if productCategoryMenu.available and productCategoryMenu.stock > 0 and not productCategoryMenu.upon_request %}
+                                                            {% element 'snippets/product-menu' {
+                                                                "product": productCategoryMenu,
+                                                                "carousel": false
+                                                            } %}
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {% element 'snippets/product-menu' {
+                                                            "product": productCategoryMenu,
+                                                            "carousel": false
+                                                        } %}
+                                                    {% endif %}
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+
+                    </ul>
+                    {% endif %} 
+                    
+                </li>
+            {% endfor %}
+            
+            {% if not utils.is_mobile %}
+                {% set offerCategoryLink = Categories( { "id": settings.idcategory_countdown } ) %}
+                {% if settings.offer_active %}
+                <li class="first-level categoria-offer">
+                    <a href="{{ offerCategoryLink.link }}" title="{{ settings.categorytitle_countdown }}">
+                        {% if settings.icon_countdown %}
+                        <div class="category-image">
+                            <img class="lazyload" data-src="{{ asset(settings.icon_countdown) }}" alt="{{ settings.menu_all_categories_title }}">
+                        </div>
+                        {% endif %}
+                        <div class="name">
+                            {{ settings.categorytitle_countdown }}
+                        </div>
+                    </a>
+                    <ul class="sub-list second-level">
+                        <div class="categoria-offer__products" data-countdown="{{ settings.date_countdown }}">
+                            {% set productsCategory = Products({
+                                'filter': ['available'],
+                                'limit': 15,
+                                'categories': [settings.idcategory_countdown],
+                                'order': 'rand'
+                            }) %}
+                            
+                            {% if productsCategory|length > 0 %}
+                                <div class="section-showcase">
+                                    <div class="container">
+                                        <div class="list-product">
+                                            <div class="list-product__items flex">
+                                                {% for productCategoryOffer in productsCategory %}
+                                                    {% if settings.show_product_stock_on_listing %}
+                                                        {% if productCategoryOffer.available and productCategoryOffer.stock > 0 and not productCategoryOffer.upon_request %}
+                                                            <div class="item swiper-slide">
+                                                                {% element 'snippets/product-menu' {
+                                                                    product : productCategoryOffer,
+                                                                    slide   : false
+                                                                } %}
+                                                            </div>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <div class="item swiper-slide">
+                                                            {% element 'snippets/product-menu' {
+                                                                product : productCategoryOffer,
+                                                                slide   : false
+                                                            } %}
+                                                        </div>
+                                                    {% endif %}
+                                                {% endfor %}
+                                                
+                                                
+                                            </div>
+                                            <div class="prev">
+                                                <i class="icon icon-arrow-left"></i>
+                                            </div>
+                                            <div class="next">
+                                                <i class="icon icon-arrow-right"></i>
+                                            </div>    
+                                        </div>
+                            
+                                    </div>
+                                </div>
+                            {% else %}
+                            <strong style="display:flex;justify-content:center;padding:10px 0;">Categoria sem produtos ou inexistente.</strong>
+                            {% endif %}
+                        </div>
+                        <div class="categoria-offer__descriptions">
+                            <div class="categoria-offer__title">
+                                <strong>{{ settings.title_countdown }}</strong>
+                                <span>{{ settings.subtitle_countdown }}</span>
+                            </div>
+                            <ul class="categoria-offer__countdown"></ul>
+                            {% if settings.button_countdown %}
+                                <a href="{{ offerCategoryLink.link }}" class="categoria-offer__button">{{ settings.button_countdown }}</a>
+                            {% endif %}
+                        </div>
+                    </ul>
+                </li>
+                {% endif %}
+            {% endif %}
+            
+        </ul>
+    </div>
+</nav>

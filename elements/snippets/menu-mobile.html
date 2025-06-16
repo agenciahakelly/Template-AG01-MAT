@@ -1,0 +1,157 @@
+{% set whatsappNumber = Translation('ag_telefone_1') %}
+{% set phone = Translation('ag_telefone_1') %}
+{% set email = Translation('ag_email_1') %}
+
+<div id="menu-mobile" class="menu-mobile">
+
+    <div class="close-box close-overlay">
+        <i class="icon icon-times"></i>
+    </div>
+
+    <div class="block-title flex align-center">
+        <div class="header-menu">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        Menu
+    </div>
+
+    <div class="nav-mobile-wrapper">
+        <nav class="nav-mobile">            
+            <ul class="list first-level">
+
+                {% for category in categories %}
+                
+                    <li {% if category.children %} class="sub" {% endif %}>
+                        
+                        <a href="{{ category.link }}">
+                            {% if category.images[0] %}
+                                <div class="category-image">
+                                    <img src="{{ category.images[0] }}" alt="{{ category.name }}">           
+                                </div>
+                            {% endif %}
+                            {{ category.name }}
+                            {% if category.children %} 
+                                <i class="icon icon-arrow-down"></i>
+                            {% endif %}
+                        </a>
+
+                        {% if category.children %}
+                        <ul class="second-level">
+                                
+                            <a href="{{ category.link }}">Ver {{ category.name }}</a>
+                            
+                            {% for level2 in category.children %}
+
+                                <li {% if level2.children %} class="sub" {% endif %}>
+                                    
+                                    <a href="{{ level2.link }}">{{ level2.name }}</a>
+                                
+                                    {% if level2.children %}
+                                    <ul class="third-level">
+                                        {% for level3 in level2.children %}
+                                        <li>
+                                            <a href="{{ level3.link }}">{{ level3.name }}</a>
+                                        </li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% endif %}   
+
+                                </li>
+
+                            {% endfor %}    
+
+                        </ul>
+                        {% endif %}   
+
+                    </li>
+                {% endfor %}  
+                
+                {% if utils.is_mobile %}
+                    {% set offerCategoryLink = Categories( { "id": settings.idcategory_countdown } ) %}
+                    {% if settings.offer_active %}
+                    <li class="categoria-offer">
+                        <a href="{{ offerCategoryLink.link }}" title="{{ settings.categorytitle_countdown }}">
+                            {% if settings.icon_countdown %}
+                                <div class="category-image">
+                                    <img src="{{ asset(settings.icon_countdown) }}" alt="{{ settings.menu_all_categories_title }}">
+                                </div>
+                            {% endif %}
+                            {{ settings.categorytitle_countdown }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+            </ul> 
+        </nav>
+    </div>
+    <div class="menu-mobile-actions">
+        <div class="account flex align-center">
+    
+            <i class="account-icon icon icon-login"></i>
+    
+            <div class="tray-hide" data-logged-user="false">
+                <span>Minha Conta</span>
+                <div class="login-links">
+                    <a href="{{ links.login }}" title="Entrar">Entrar</a>
+                    <span>/</span>
+                    <a href="{{ links.register }}" title="Cadastrar">Cadastrar</a>
+                </div>
+            </div> 
+    
+            <div class="tray-hide" data-logged-user="true">
+                <span>Ol&aacute;, <span data-customer="name"></span></span>
+                <div class="login-links">
+                    <a href="{{ links.central }}" title="Minha Conta">Minha conta</a>
+                    <span>/</span>
+                    <a href="{{ links.logout }}" title="Sair">Sair</a>
+                </div>
+            </div>
+    
+        </div>
+        <ul class="menu-actions-mobile__contact">
+            {% if whatsappNumber %}
+                <li class="wpp-mobile hidden">
+                    {% element 'snippets/whatsapp' { 'number': whatsappNumber, 'include_text' : false } %}
+                </li>
+            {% endif %}
+            
+            {% if phone %}
+                {% set link = phone | replace({'(': '', ')': '', '-': '', ' ': ''}) %}
+                <li class="hidden">
+                    <a href="tel:{{ link }}" title="Telefone: {{ phone }}">
+                        <i class="icon icon-phone v-align-middle"></i>
+                        Telefone:
+                        <span>{{ phone }}</span>
+                    </a>
+                </li>
+            {% endif %}
+            
+            {% if email %}
+                <li class="email-menu-mobile">
+                    <a href="mailto:{{ email }}" title="Email: {{ email }}">
+                        <i class="icon icon-email v-align-middle"></i>
+                        E-mail:
+                        <span>{{ email }}</span>
+                    </a>
+                </li>
+            {% endif %}
+            {% if not settings.shipping_truck_active %}
+            <li>
+                <div class="header-wrapper__item header-wrapper__item--truck">
+                    <div class="header-wrapper__text">
+                        <span><i class="icon icon-truck"></i></span>
+                        Rastrear Pedido
+                    </div>
+                    <div class="header-wrapper__form" url-shipping="{{ settings.shipping_truck_link ? settings.shipping_truck_link : 'https://rastreamentocorreios.info/consulta/' }}">
+                        <input type="text" placeholder="Código de rastreio">
+                        <div class="header-wrapper__button"><i class="icon icon-search"></i></div>
+                    </div>
+                </div>
+            </li>
+            {% endif %}
+        </ul>
+    </div>
+
+</div>

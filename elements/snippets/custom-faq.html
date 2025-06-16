@@ -1,0 +1,30 @@
+{% if settings.custom_faq_active %}
+<div class="custom-faq">
+    <div class="container">
+        {% if settings.custom_faq_title %}
+        <div class="section-header">
+            <h2 class="title-section">{{ settings.custom_faq_title }}</h2>
+        </div>
+        {% endif %}
+        <div class="block-custom__items">
+            {% for i in 1..12 %}
+                {% set question = attribute(settings, 'custom_faq_question_'~i) %}
+                
+                {% set response = attribute(settings, 'custom_faq_response_'~i) %}
+                
+                {% if question %}
+                <div class="custom-faq__item">
+                    <div class="custom-faq__quest">
+                        <h3>{{ question }}</h3>
+                        <i class="icon icon-arrow-down"></i>
+                    </div>
+                    <div class="custom-faq__resp">
+                        <p>{{ response }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}

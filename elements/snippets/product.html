@@ -1,0 +1,225 @@
+{% set hover_class = product.available and (product.stock > 0 or settings.without_stock_sale) and not product.upon_request ? 'show-down' : '' %}
+
+{#
+	Se nao ha nivel declarado, assume-se que o
+	showcase comeca no nivel 2, o que pede que os
+	produtos sejam nivel 3
+#}
+
+{% if not heading_level %}
+	{% set heading_level = 'h3' %}
+{% endif %}
+
+{% set product_random_id = random() %}
+
+{% set show_schema = settings.show_schema_in_showcase %}
+
+{% set is_product_available = (
+	product.stock > 0
+	and product.available == 1 
+) %}
+
+{%
+	if (
+		product.upon_request
+		and not settings.show_schema_for_upon_request_products
+	) or (
+		not is_product_available
+		and not settings.show_schema_for_unavailable_products
+	)  or prevent_schema
+%}
+	{% set show_schema = false %}
+{% endif %}
+
+
+<div class="product {{ product.upon_request ? 'upon_request' : '' }} {{ hover_class }}
+		{{ (product.images[1]) ? 'has-secondary-image' : null }}
+		{{ not prevent_buy ? 'has-fast-shopping'}}
+		{{ modifier ? 'product--' ~ modifier : null }}
+		
+	"
+	{% if not prevent_buy %}
+		id="product-{{ product_random_id }}"
+	{% endif %}
+	product-ref="{{product.reference ? product.reference  : 'ref-empty'}}"
+>
+
+    {% if pages.current == 'catalog' and settings.compare %}
+        <div class="compare-buttons">
+
+            <a href="{{ links.compare_delete ~ product.id }}" class="flex justify-center align-center {{ not product.compare ? 'compare-hidden' }}" data-compare="remove">
+                <span class="filter-checkbox checked"></span>
+                {{ Translation("remover_comparar") }}
+            </a>
+
+            <a href="{{ links.compare_add ~ product.id }}" class="flex justify-center align-center {{ product.compare ? 'compare-hidden' }}" data-compare="add">
+                <span class="filter-checkbox"></span>
+                {{ Translation("comparar_produto") }}
+            </a>
+
+        </div>
+    {% endif %}
+
+    <div class="image">
+
+        {% set image_class = slide ? 'swiper-lazy' : 'lazyload' %}
+
+        <a href="{{ product.link }}" class="space-image">
+            {% if settings.showcase_format_products %}
+                <img loading="lazy" class="{{ image_class }}" src="{{ asset('img/empty.png') }}" data-src="{{ product.images[0].large }}" alt="{{ product.name }}">
+                {% if (product.images[1]) %}
+                    <img loading="lazy" class="{{ image_class }}" src="{{ asset('img/empty.png') }}" data-src="{{ product.images[1].large }}" alt="{{ product.name }}">
+                {% endif %}    
+            {% else %}
+                <img loading="lazy" class="{{ image_class }}" src="{{ asset('img/empty.png') }}" data-src="{{ product.images[0].full }}" alt="{{ product.name }}">
+                {% if (product.images[1]) %}
+                    <img loading="lazy" class="{{ image_class }}" src="{{ asset('img/empty.png') }}" data-src="{{ product.images[1].full }}" alt="{{ product.name }}">
+                {% endif %}
+            {% endif %}
+        </a>
+
+        {% element 'snippets/product-tags' { 'product': product } %}
+        
+    </div>
+
+    <a class="product-info" href="{{ product.link }}">
+
+        <div class="wrapper-product-name">
+            <h3 class="product-name">
+                {{ product.name }}
+            </h3>
+        </div>
+
+        <div class="product-price">
+            {% if product.available and (product.stock > 0 or settings.without_stock_sale) and not product.upon_request %}
+
+                {% element 'snippets/product-price' { 'product': product } %}
+
+            {% elseif product.upon_request %}
+
+                {% element 'snippets/product-message' { 'product_message': 'Sob consulta', 'know_more' : 'Saiba mais' } %}
+
+            {% elseif product.stock <= 0 %}
+
+                {% element 'snippets/product-message' {  'product_message': 'Esgotado :(', 'know_more' : 'Avise-me quando chegar' } %}
+
+            {% else %}
+
+                {% element 'snippets/product-message' {  'product_message': 'Esgotado :(', 'know_more' : 'Avise-me quando chegar'  } %}
+
+            {% endif %}
+        </div>
+        
+    </a>
+        
+    {% if not settings.showcase_buy_button_showcase %} 
+        {% set customBuyVariants = pages.current == 'product' ? product.Variants : product.variants %}
+        
+        {% if customBuyVariants is empty %}
+            {% set customBuyVariants = product.variants %}
+        {% endif %}
+        
+        {% if settings.showcase_buy_fast %}
+            
+        	{% if not product.is_kit and product.available and (product.stock > 0 or settings.without_stock_sale) and not product.upon_request %}
+        	
+        		{# Processamento de dados das variantes #}
+        		{% set processed_variants = [] %}
+        		
+        		{% for variant in customBuyVariants %}
+        		   
+        			{% set single_processed_variant = [] %}
+        			
+        			{# Para cada Variante, guarda os valores abaixo #}
+        			
+        			{% set single_processed_variant = single_processed_variant|merge({ ('available') : variant.available }) %}
+        			{% set single_processed_variant = single_processed_variant|merge({ ('id') : variant.id }) %}
+        			{% set single_processed_variant = single_processed_variant|merge({ ('stock') : variant.stock }) %}
+        			{% set single_processed_variant = single_processed_variant|merge({ ('price') : variant.price|currency }) %}
+        			
+        			{# Processa os Skus de cada variante #}
+        			{% set processed_skus = [] %}
+        			{% for sku in variant.Sku %}
+        				{% set single_processed_sku = [] %}
+        				
+        				{% for sku_key, sku_value in sku %}
+        					{# Para cada dado dos Skus, converte o encoding para iso-8859-1 #}
+        					{% set single_processed_sku = single_processed_sku|merge({ (sku_key) : sku_value|convert_encoding('utf-8', 'iso-8859-1') }) %}
+        				{% endfor %}
+        				
+        				{# Une os dados em um unico Sku #}
+        				{% set processed_skus = processed_skus|merge([single_processed_sku]) %}
+        			{% endfor %}
+        
+        			{# Une os valores do Sku em um unico atributo #}
+        			{% set single_processed_variant = single_processed_variant|merge({ ('Sku') : processed_skus }) %}
+        			
+        			{# Une os valores das variantes em um unico objeto #}
+        			{% set processed_variants = processed_variants|merge([single_processed_variant]) %}
+        			
+        		{% endfor %}
+        		
+                {% for adjustFunctionVariants in processed_variants %}
+        		   {% if adjustFunctionVariants.available is same as('') %}
+        		        {% set processed_variants = [] %}
+        		    
+        		   {% endif %}
+        		{% endfor %}
+        		
+        		
+        		<div class="product__buy">
+        			<fast-shopping
+        				:variants="variants"
+        				:product_id="product_id"
+        				:product_random_id="product_random_id"
+        				:is_https="is_https"
+        			></fast-shopping>
+        		</div>
+        		
+        		
+        		<script>
+    				document.addEventListener("DOMContentLoaded", function() {
+    					new Vue({
+    						el: '#product-{{ product_random_id }} .product__buy',
+    						data: {
+    							variants: {{ processed_variants|json_encode|raw }},
+    							product_id: {{ product.id }},
+    							product_random_id: {{ product_random_id }},
+    							is_https: settings.is_https
+    							
+    						}
+    					})
+    				});
+        		</script>
+        	{% else %}
+        		<div class="actions">
+                    {% if product.available and (product.stock > 0 or settings.without_stock_sale) and not product.upon_request %}
+                        <a class="product-button" href="{{ product.link }}">
+                            Comprar
+                        </a>
+                    {% endif %}
+                </div>
+        	{% endif %}
+    	{% else %}
+    	<div class="actions">
+            {% if product.available and (product.stock > 0 or settings.without_stock_sale) and not product.upon_request %}
+                <a class="product-button" href="{{ product.link }}">
+                    Comprar
+                </a>
+            {% endif %}
+        </div>
+    	{% endif %}
+	{% endif %}
+	
+	{% if product.available and (product.stock > 0 or settings.without_stock_sale) and not product.upon_request %}
+    	{% if settings.button_whats_list %}
+    	<div class="buy-whatsapp buy-whatsapp--list-product">
+    	    <a href="https://api.whatsapp.com/send?phone=55{{ settings.button_whats_number|replace({ '(': '', ')': '', '-': '', ' ': '', '.': '' }) }}&text={{ settings.button_whats_message|striptags|trim|convert_encoding('UTF-8', 'HTML-ENTITIES') }} Nome: {{ product.name|striptags|trim|convert_encoding('UTF-8', 'HTML-ENTITIES') }} | Ref: {{ product.reference|striptags|trim|convert_encoding('UTF-8', 'HTML-ENTITIES') }}" target="_blank">
+    	        <i class="icon icon-whatsapp v-align-middle"></i>
+    	        {{ settings.button_whats_title }}
+    	    </a>
+    	</div>
+    	{% endif %}
+	{% endif %}
+    
+</div>

@@ -1,0 +1,58 @@
+{% set slideshow = utils.is_mobile ? banners.mobile : banners.home %}
+
+{% if slideshow %}
+    {% set slideConfigs = {
+        'stopOnHover' : (slideshow.stop_over == 1 ? true : false),
+        'timer'       : slideshow.interval,
+        'isMobile'    : utils.is_mobile,
+        'speed'       : slideshow.velocity,
+        'isLoop'      : (settings.full_banners_loop == '1' ? true : false),
+        'isAutoplay'  : (settings.full_banners_autoplay == '1' ? true : false),
+    } %}
+
+    <div class="banner-home" data-settings="{{ slideConfigs | json_encode() | escape }}">
+        {% if slideshow.type == 'javascript' %}
+
+            <div class="swiper-container">
+                <div class="swiper-wrapper">
+                    {% for slide in slideshow.slides %}
+                        {% set lazyIndex = loop.index == 1 ? false : true %}
+                        <div class="swiper-slide item">
+                            {% element 'snippets/banner' {
+                                image    : slide,
+                                swiper   : lazyIndex,
+                                notLazy  : lazyIndex,
+                                padding  : true,
+                                location : 'banner-home'
+                            } %}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="dots">
+                    {% for list in slideshow.slides %}
+                        <div class="dot{{ loop.index == 1 ? ' dot-active' }}"></div>
+                    {% endfor %}
+                </div>
+                <div class="prev">
+                    <i class="icon icon-arrow-left"></i>
+                </div>
+                <div class="next">
+                    <i class="icon icon-arrow-right"></i>
+                </div>
+            </div>
+
+        {% else %}
+
+            <div class="item">
+                {% element 'snippets/banner' {
+                    image    : slideshow,
+                    swiper   : false,
+                    padding  : true,
+                    location : 'banner-home'
+                } %}
+            </div>
+
+        {% endif %}
+    </div>
+
+{% endif %}

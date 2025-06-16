@@ -1,0 +1,53 @@
+  {% if settings.show_reviews_custom_home %}
+<div class="block-custom custom-home-reviews">
+    <div class="custom-home-reviews__title section-header">
+        <h2 class="title-section">{{ settings.reviews_custom_home_title_page }}</h2>
+    </div>
+    <div class="container swiper-container">
+        <div class="block-custom__content swiper-wrapper">
+            {% for i in 1..12 %}
+                {% set title = attribute(settings, 'reviews_custom_home_title_'~i) %}
+                
+                {% set description = attribute(settings, 'reviews_custom_home_description_'~i) %}
+                
+                {% set data = attribute(settings, 'reviews_custom_home_data_'~i) %}
+                
+                {% set img = attribute(settings, 'reviews_custom_home_image_'~i) %}
+                
+                {% if title %}
+                <div class="item swiper-slide flex justify-center align-center">
+                    {% if img %}
+                        <div class="custom-home-reviews__left">
+                            <img loading="lazy" class="icon lazyload" data-src="{{ asset(img) }}" alt="{{ title }}">
+                        </div>
+                    {% endif %}
+                    <div class="custom-home-reviews__right flex flex-column justify-center align-left">
+                        <strong>
+                            {{ title }}
+                            <span class="custom-home-reviews__stars">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                            </span>
+                        </strong> 
+                        <small>{{ data }}</small>
+                        <p>
+                            {{ description }}
+                        </p>
+                    </div>
+                </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="prev">
+            <i class="icon icon-arrow-left"></i>
+        </div>
+        <div class="next">
+            <i class="icon icon-arrow-right"></i>
+        </div>
+        <div class="dots"></div>
+    </div>
+</div>
+{% endif %}

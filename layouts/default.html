@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="pt-br" data-tray-theme="Match Plus - Canelados" data-tray-theme-version="2.0.1" data-files="{{ utils.assets_version }}" data-store="{{ store.id }}" class="page-{{ pages.current }}">
+    <head>
+
+        {# Minified variable is used for helping development #}
+        {% set minified = true %}
+
+        {{ html.charset() }}
+
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport"              content="width=device-width, initial-scale=1">
+        <meta name="theme-color"           content="{{ settings.message_color_bg }}">
+         
+        {% element 'head-metas' %}
+        {% element 'css-variables' %}
+        {% element 'styles' { minified : minified } %}
+
+        {{ tray.analytics }}
+        {{ googleTagManager.header(pages.current, tagManagerData) }}
+        
+        <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700" rel="stylesheet">
+        
+        {% if settings.font_default %}
+            <link href="https://fonts.googleapis.com/css2?family={{ settings.font_default|replace({' ': '+'}) }}:wght@300;400;500;600;700" rel="stylesheet">
+        {% endif %}
+        {% if settings.font_title %}
+            <link href="https://fonts.googleapis.com/css2?family={{ settings.font_title|replace({' ': '+'}) }}:wght@300;400;500;600;700" rel="stylesheet">
+        {% endif %}
+        {% if settings.font_menu %}
+            <link href="https://fonts.googleapis.com/css2?family={{ settings.font_menu|replace({' ': '+'}) }}:wght@300;400;500;600;700" rel="stylesheet">
+        {% endif %}
+        
+        <style>
+            @media(min-width: 767px){
+                .list-product .item{
+                    width: calc(100% / {{ settings.showcase_quantity }});
+                }
+            }
+            media(max-width: 768px){
+                .list-product .item{
+                    width: calc(100% / {{ settings.showcase_quantity_phone }});
+                }
+            }
+            #NavLogoTray a:after {
+                background: url({{ asset('img/settings/tray.png') }}) center center no-repeat;
+            }
+        </style>
+        
+        <script>
+        	//===============
+        	//  VARIAVEIS GLOBAIS
+        	//  Declaradas como propriedades de objeto para
+        	//  dar namespace
+        	//===============
+        	var g = {};
+        
+        	// Objeto de acoes para serem executadas apos carregar o jQuery
+        	g.actions = {};
+        
+        	//===============
+        	//  BREAKPOINTS UTILIZADOS
+        	//  Muda-los aqui implica em muda-los no
+        	//  /template/scss/_variaveis.scss
+        	//===============
+        	g.bp = {
+        		xs: 0,
+        		sm: 425,
+        		md: 768,
+        		lg: 1024,
+        		xl: 1200
+        	};
+        
+        	// Objeto de configuracoes do customizador
+        	var settings = {{ settings|json_encode }};
+        	settings.store_id = {{ store.id }};
+        	settings.is_https = {{ utils.is_https ? 'true' : 'false' }};
+            
+        </script>
+        
+        {% if settings.editor_css_custom %}
+            <style>
+                {{ settings.editor_css_custom }}
+            </style>
+        {% endif %}
+    </head>
+    <body>
+        
+        {{ googleTagManager.top(pages.current, tagManagerData) }}
+        {% element 'snippets/modals-theme' %}
+        {% element 'snippets/side-cart' %}
+        
+        {% element 'snippets/page-maintenance' %}
+        
+        <div class="overlay-shadow"></div>
+        <div class="application">
+            
+            {% element 'snippets/menu-mobile' %}
+            {% element 'header' %}
+
+            <main class="site-main">
+                {% if not ('home' in pages.current) %}
+                    {% if not ('product' in pages.current) %}
+                        {% element 'snippets/banner-title' %}
+                    {% endif %}
+                <div class="page-content {{ pages.current in ['catalog', 'home', 'search'] ? ' not-padding' }}">
+                {% endif %}
+
+                    {% if "central" in pages.current %}
+
+                        <div class="container">
+                            <div class="line-panel flex">
+                                {%  element 'sidebar-central' %}
+                                <div class="col-panel">
+                                    {{ content_for_layout }}
+                                </div>
+                            </div>
+                        </div>
+
+                    {% elseif 'home' in pages.current %}
+
+                        {{ content_for_layout }}
+
+                    {% else %}
+
+                        {% set special_pages = [
+                            'listas',
+                            'depoimentos-de-clientes',
+                            'noticias'
+                        ] %}
+
+                        {% set title = '' %}
+
+                        {% for page in pages.custom %}
+                            {% if ('empresa' in page.slug and pages.current == 'company') or (pages.current == page.slug and page.slug not in special_pages) %}
+                                {% set title = page.name %}
+                            {% endif %}
+                        {% endfor %}
+
+                        <div class="container {% if title != '' %} is-custom-page {% endif %}">
+
+                            {% if title != '' %}
+                                <div class="page-title">
+                                    <span class="text">
+                                        {{ title }}
+                                    </span>
+                                </div>
+                            {% endif %}
+
+                            {{ content_for_layout }}
+
+                        </div>
+
+                    {% endif %}
+                {% if not pages.current == 'home' %}
+                </div>
+                {% endif %}
+            </main>
+
+            {% element 'footer' %}
+
+            {% if settings.show_whatsapp_button %}
+                {% element 'snippets/whatsapp' { 'local': 'floating' } %}
+            {% endif %}
+
+        </div>
+        <div>
+            {% element 'snippets/messages' %}
+        </div>
+        
+        <div class="site-lgpd loaded">
+            <p>{{ settings.custom_lgpd_message }} <a href="{{ settings.custom_lgpd_link_text }}">{{ settings.custom_lgpd_text_link }}</a></p>
+            <div class="site-lgpd__button">{{ settings.custom_lgpd_button }}</div>
+        </div>
+        
+        {% element 'snippets/pageview' %}
+        {% element 'snippets/modal' %}
+
+        {% element 'scripts' { minified : minified } %}
+
+        {{ store.chat }}
+        {{ googleTagManager.bottom(pages.current, tagManagerData) }}
+        
+    </body>
+</html>

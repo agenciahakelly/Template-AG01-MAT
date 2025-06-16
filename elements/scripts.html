@@ -1,0 +1,66 @@
+{% set extensionJs  = minified ? '.min.js'  : '.js'  %}
+
+{# Tray scripts #}
+
+{{ tray.scripts }}
+
+{# Caso precise remover ou alterar algum script da chamada tray.scripts
+
+{% set scripts = tray.scripts | split('\n') %}
+
+{% for script in scripts %}
+    {% if pages.current == 'login' or not ('vendors' in script) %}
+        {{ script }}
+
+    {% endif %}
+{% endfor %}
+
+#}
+
+{% element 'snippets/fast-shopping-template' %}	
+
+{% if 'product' in pages.current %}
+    <script src="{{ asset('js/zoom.min.js') }}"></script>
+{% endif %}
+
+
+{% if 'depoimentos' in pages.current %}
+    <script src="{{ asset('js/jquery.validate.min.js') }}"></script>
+{% endif %}
+
+{# Theme Scripts #}
+
+<script>
+	window.theme = {
+		assets: '{{ asset()|split('?')[0] }}'
+	}
+</script>
+
+<script type="text/javascript" src="{{ asset('js/js.cookie.min.js') }}"></script>
+{% element 'modal-newsletter' %}
+<script src="{{ asset('js/lazyload.min.js')    }}"></script>
+<script src="{{ asset('js/swiper.min.js')      }}"></script>
+<script src="{{ asset('js/jquery.mask.min.js') }}"></script>
+<script src="{{ asset('js/js.cookie.min.js')   }}"></script>
+
+{# Variaveis Globais #}
+<script>
+	g.page = jQuery('html');
+
+	jQuery.each( g.actions, function (index, action) {
+		action();
+	});
+</script>
+
+<script src="{{ asset('js/yucountdown.min.js')   }}"></script>
+<script src="{{ asset('js/toastr.min.js')   }}"></script>
+<script src="{{ asset('js/vue.min.js')   }}"></script>
+<script src="{{ asset('js/main' ~ extensionJs) }}"></script>
+<script src="{{ asset('js/fast-shopping.js')   }}"></script>
+
+{{
+    html.script({
+        '0' : tray.paths.js ~ 'dist/application.min.js?' ~ utils.assets_version
+    })
+}}
+

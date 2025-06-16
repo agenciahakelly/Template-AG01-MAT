@@ -1,0 +1,201 @@
+ <template id="fast-shopping-template">
+	<span v-if="variants != null && variants.length > 0">
+		<div class="product__buy__fields product__buy__fields--opened" v-if="opened">
+			{# Mostra caracteristica primaria em formato de imagem #}
+			<div v-if="primary_type_values[0].image || primary_type_values[0].image_secure">
+				<div class="cor_variacao show_size_and_color_type passo1">
+					<label
+						class="product__variant-label"
+						v-text="variant_types[0]"
+					></label>
+
+					<div v-if="selected_primary" class="product__color">
+						<span v-text="selected_primary"></span>
+						<span v-if="filtered_variants && filtered_variants[1] == undefined && !variant_types[1]" v-text="`(R$ ${filtered_variants[0].price})`"></span>
+					</div>
+
+					<ul class="lista_cor_variacao">
+						<li v-for="primary_type_value in primary_type_values">
+							<img
+								v-if="primary_type_value.image || primary_type_value.image_secure"
+								v-bind:src="(is_https) ? primary_type_value.image_secure : primary_type_value.image"
+								v-bind:alt="primary_type_value.value"
+								v-on:click="showVariantsByPrimaryType( variant_types[0], primary_type_value.value )"
+								v-bind:class="(selected_primary != null && selected_primary == primary_type_value.value) ? 'cor_selecionada' : null"
+							>
+
+							<div
+								v-if="!primary_type_value.image && !primary_type_value.image"
+								v-text="primary_type_value.value"
+								v-on:click="showVariantsByPrimaryType( variant_types[0], primary_type_value.value )"
+							></div>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			{# Mostra caracteristica primaria em formato de select #}
+			<div v-else>
+				<label
+					class="product__variant-label"
+					v-bind:for="'primary-' + product_random_id "
+					v-text="variant_types[0]"
+				></label>
+
+				{# Se ha variacao dupla #}
+				<template v-if="variant_types[1]">
+					<select
+						v-bind:id="'primary-' + product_random_id"
+						v-model="selected_primary_value"
+						v-on:change="showVariantsByPrimaryType( variant_types[0], selected_primary_value )"
+						class="select"
+					>
+						<option disabled value="" selected="selected">-- Selecione --</option>
+						<option
+							v-for="primary_type_value in primary_type_values"
+							v-text="primary_type_value.value"
+							v-bind:value="primary_type_value.value"
+						></option>
+					</select>
+				</template>
+
+				{# Se ha variacao simples apenas #}
+				{% if settings.without_stock_sale == '1' %}
+				    <template v-else>
+    					<select
+    						v-bind:id="'primary-' + product_random_id"
+    						v-model="selected_variant"
+    						class="select"
+    					>
+    						<option disabled value="" selected="selected">-- Selecione --</option>
+    						<option
+    							v-for="variant in variants"
+    							
+    							v-text="`${variant.Sku[0].value} (R$ ${variant.price}) `"
+    							v-bind:value="variant.id"
+    						></option>
+    					</select>
+    				</template>
+				{% else %}
+				    <template v-else>
+    					<select
+    						v-bind:id="'primary-' + product_random_id"
+    						v-model="selected_variant"
+    						class="select"
+    					>
+    						<option disabled value="" selected="selected">-- Selecione --</option>
+    						<option
+    							v-for="variant in variants"
+    							v-if="variant.stock > 0"
+    							v-text="`${variant.Sku[0].value} (R$ ${variant.price}) `"
+    							v-bind:value="variant.id"
+    						></option>
+    					</select>
+    				</template>
+				{% endif %}
+			</div>
+
+			{# Mostra caracteristica secundaria, se houver #}
+			<div v-if="variant_types[1] && filtered_variants">
+				<label
+					class="product__variant-label"
+					v-bind:for="'secondary-' + product_random_id"
+					v-text="variant_types[1]"
+				></label>
+
+				<select
+					v-bind:id="'secondary-' + product_random_id"
+					v-model="selected_variant"
+					class="select"
+				>
+					<option disabled value="" selected="selected">-- Selecione --</option>
+					<option
+						v-for="filtered_variant in filtered_variants"
+						v-text="`${filtered_variant.Sku[1].value} (R$ ${filtered_variant.price}) `"
+						v-bind:value="filtered_variant.id"
+					></option>
+				</select>
+			</div>
+
+			{# Compra #}
+			<div class="product__form">
+				<div class="label-quantity">
+                    <button class="btn btn--minus" @click="changeCounter('-1')" type="button" name="button" aria-label="Diminuir"></button>
+                    <label
+					    v-bind:for="'quantity-' + product_random_id"
+    					class="visuallyhidden"
+    				    >Quantidade
+    				</label>
+                    <input
+    					class="product__quantity text"
+    					v-model="quantity"
+    					type="number"
+    					v-bind:id="'quantity-' + product_random_id"
+    					aria-label="Quantidade"
+    				>
+    				<button class="btn btn--plus" @click="changeCounter('1')" type="button" name="button" aria-label="Aumentar"></button>
+                </div>
+
+				<button class="product__close-fast-shopping" v-on:click="closeInterface" aria-label="Fechar">
+					<svg class="icon icon-x">
+						<use xlink:href="#icon-x"></use>
+					</svg>
+				</button>
+
+				<button
+					class="bt bt--forward product__button"
+					v-on:click="addToCart(quantity, product_id, selected_variant)"
+					aria-label="Comprar"
+			    >
+					<span class="bt__text">Comprar</span>
+				</button>
+			</div>
+			<div class="alert-variant-form" style="display:none;">Por favor, selecione uma variação</div>
+		</div>
+
+		<div class="product__buy__fields coomm_variacoes" v-else>
+			<div class="product__form">
+				<button
+					class="bt bt--forward product__button"
+					v-on:click="openInterface"
+					aria-label="Comprar"
+				>
+					<span class="bt__text">Comprar</span>
+				</button>
+			</div>
+		</div>							
+	</span>
+	
+	<span v-else>
+		{# Compra sem varicoes #}
+		<div class="product__buy__fields sem_variacoes">
+			<div class="product__form">
+				
+                <div class="label-quantity">
+                    <button class="btn btn--minus" @click="changeCounter('-1')" type="button" name="button" aria-label="Diminuir"></button>
+                    <label
+					    v-bind:for="'quantity-' + product_random_id"
+    					class="visuallyhidden"
+    				    >Quantidade
+    				</label>
+                    <input
+    					class="product__quantity text"
+    					v-model="quantity"
+    					type="number"
+    					v-bind:id="'quantity-' + product_random_id"
+    					aria-label="Quantidade"
+    				>
+    				<button class="btn btn--plus" @click="changeCounter('1')" type="button" name="button" aria-label="Aumentar"></button>
+                </div>
+				<button
+					class="bt bt--forward product__button"
+					v-on:click="addToCart(quantity, product_id)"
+				>
+					<span class="bt__text">Comprar</span>
+				</button>
+			</div>						
+		</div>
+	</span>
+	
+	
+</template>

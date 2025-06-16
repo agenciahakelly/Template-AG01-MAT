@@ -1,0 +1,19 @@
+{% if settings.blog_home_active %}
+    {% for pages in pages.custom %}
+        {% if pages.info == "noticias" %}
+        <div class="section-notices">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="title-section">
+                        {{ settings.blog_home_title }}
+                        <a href="/loja/busca_noticias.php">
+                           Ver todos <i class="icon icon-arrow-right"></i>
+                        </a>
+                    </h2>
+                </div>
+                <ul class="noticias-content"></ul>
+            </div>
+        </div>
+        {% endif %}
+    {% endfor %} 
+{% endif %}

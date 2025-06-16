@@ -1,0 +1,316 @@
+{% set quantity_products_desktop = settings.showcase_quantity %}
+{% set quantity_products_mobile = settings.showcase_quantity_phone %}
+<div class="slider_parameters d-none hidden hide" data-quantity-desktop="{{ quantity_products_desktop }}" data-quantity-mobile="{{ quantity_products_mobile }}"></div>
+
+<!-- Full banners custom do template -->
+{% element 'snippets/banner-home'       %}
+
+<!-- Banner targa custom do template -->
+{% element 'snippets/banner-tarja'      %} 
+
+<!-- Compre por categorias custom do template -->
+{% element 'snippets/banner-categorias' %}
+
+<!-- Vitrine countdown -->
+{% if settings.showcase_countdown_active %}
+    {% set customShowcaseCountdownId = attribute(settings, 'showcase_countdown_id') %}
+    
+    {% set customShowcaseCountdownName = Categories( { "id": customShowcaseCountdownId } ) %}
+    
+    {% set customShowcaseCountdownType = attribute(settings, 'showcase_countdown_type') %}
+            
+    {% set customShowcaseCountdownOrder = attribute(settings, 'showcase_countdown_order') %}
+    
+    {% set customShowcaseCountdownQuantity = attribute(settings, 'showcase_countdown_quantity') %}
+    
+    
+    {% if settings.showcase_rand_products %}
+        {% set productsCategoryCountdown = Products({
+            'filter': customShowcaseCountdownType == 'all_products' ? 'available' : customShowcaseCountdownType,
+            'limit': customShowcaseCountdownQuantity,
+            'categories': customShowcaseCountdownId,
+            'order': 'rand'
+        }) %}
+    {% else %}
+        {% set productsCategoryCountdown = Products({
+            'filter': customShowcaseCountdownType == 'all_products' ? 'available' : customShowcaseCountdownType,
+            'limit': customShowcaseCountdownQuantity,
+            'categories': customShowcaseCountdownId,
+            'order': {
+                (customShowcaseCountdownOrder 
+                == 'priceHigh' ? 'price' : customShowcaseCountdownOrder 
+                == 'priceLow' ? 'price' : customShowcaseCountdownOrder): customShowcaseCountdownOrder 
+                == 'quantity_sold' ? 'desc' : customShowcaseCountdownOrder 
+                == 'priceLow' ? 'asc' : customShowcaseCountdownOrder 
+                == 'priceHigh' ? 'desc' : 'desc',
+            }
+        }) %}
+    {% endif %}
+    
+    <div class="section-showcase section-showcase--countdown" data-end-countdown="{{ settings.showcase_countdown_timer }}">
+        <div class="container">
+            <div class="row-showcase-countdown container">
+                <div class="wrapper-header-countdown">
+                    {% if settings.showcase_countdown_title %}
+                    <div class="section-header">
+                        <h2 class="title-section">{{ settings.showcase_countdown_title }}</h2>
+                        {% if settings.showcase_countdown_subtitle %}
+                            <p>
+                                {{ settings.showcase_countdown_subtitle }}
+                            </p>
+                        {% endif %}
+                        {% if settings.showcase_countdown_button %}
+                            {% if settings.showcase_countdown_button_link %}
+                                <a href="{{ settings.showcase_countdown_button_link }}">
+                                    {{ settings.showcase_countdown_button }}
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    <ul class="wrapper-header-countdown__timer"></ul>
+                </div>
+                <div class="list-product {{ settings.showcase_carousel ? 'flex f-wrap swiper-container' }}">
+                    <div class="list-product__items {{ settings.showcase_carousel ? 'swiper-wrapper' : 'flex f-wrap' }}">
+                        {% for item in productsCategoryCountdown %}
+                            {% if settings.show_product_stock_on_listing %}
+                                {% if item.available and item.stock > 0 and not item.upon_request %}
+                                    <div class="item swiper-slide">
+                                        {% element 'snippets/product' {
+                                            product : item,
+                                            slide   : false
+                                        } %}
+                                    </div>
+                                {% endif %}
+                            {% else %}
+                                <div class="item swiper-slide">
+                                    {% element 'snippets/product' {
+                                        product : item,
+                                        slide   : false
+                                    } %}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endif %}
+
+<!--Native Banners Extras 1-3-->
+{% if banners.extra1 or banners.extra2 or banners.extra3 %}
+    <div class="banners-grid mini-banners group-native-banners">
+        <div class="container flex f-wrap justify-between">
+            {% for banner in [banners.extra1, banners.extra2, banners.extra3] %}
+                {% if banner %}
+                    <div class="item">
+                        {% element 'snippets/banner' {
+                            image    : banner,
+                            padding  : true
+                        } %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- Vitrines personalizadas -->
+{% for i in 1..5 %}
+
+        {% set customProductsCategory = attribute(settings, 'showcase_custom_'~i) %}
+        
+        {% set customActiveShowcase = attribute(settings, 'showcase_custom_active_'~i) %}
+
+        {% set customCategoryName = Categories( { "id": customProductsCategory } ) %}
+        
+        {% set optionCustomActiveShowcase = attribute(settings, 'showcase_custom_name_'~i) %}
+        
+        {% set customProductsType = attribute(settings, 'showcase_custom_type_'~i) %}
+        
+        {% set customProductsOrder = attribute(settings, 'showcase_custom_order_'~i) %}
+        
+        {% set customProductsQuantity = attribute(settings, 'showcase_custom_quantity_'~i) %}
+        
+        
+        {% if settings.showcase_rand_products %}
+            {% set productsCategory = Products({
+                'filter': customProductsType == 'all_products' ? 'available' : customProductsType,
+                'limit': customProductsQuantity,
+                'categories': customProductsCategory,
+                'order': 'rand'
+            }) %}
+        {% else %}
+            {% set productsCategory = Products({
+                'filter': customProductsType == 'all_products' ? 'available' : customProductsType,
+                'limit': customProductsQuantity,
+                'categories': customProductsCategory,
+                'order': {
+                    (customProductsOrder 
+                    == 'priceHigh' ? 'price' : customProductsOrder 
+                    == 'priceLow' ? 'price' : customProductsOrder): customProductsOrder 
+                    == 'quantity_sold' ? 'desc' : customProductsOrder 
+                    == 'priceLow' ? 'asc' : customProductsOrder 
+                    == 'priceHigh' ? 'desc' : 'desc',
+                }
+            }) %}
+        {% endif %}
+        
+        {% if customActiveShowcase %}
+            <div class="section-showcase" data-category="{{customProductsCategory}}" type="{{customProductsType}}" order="{{customProductsOrder}}">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="title-section">{{ optionCustomActiveShowcase ? optionCustomActiveShowcase : customCategoryName.name }}</h2>
+                    </div>
+                    <div class="list-product {{ settings.showcase_carousel ? 'flex f-wrap swiper-container' }}">
+                        <div class="list-product__items {{ settings.showcase_carousel ? 'swiper-wrapper' : 'flex f-wrap' }}">
+                            
+                            {% for item in productsCategory %}
+                                {% if settings.show_product_stock_on_listing %}
+                                    {% if item.available and item.stock > 0 and not item.upon_request %}
+                                        <div class="item swiper-slide">
+                                            {% element 'snippets/product' {
+                                                product : item,
+                                                slide   : false
+                                            } %}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="item swiper-slide">
+                                        {% element 'snippets/product' {
+                                            product : item,
+                                            slide   : false
+                                        } %}
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+{% endfor %}
+
+<!-- Vitrine nativa 1 -->
+{# First showcase #}
+{% if settings.showcase_type_active_1 %}
+    {% element 'showcase' {
+        'rand'     : settings.showcase_rand_products,
+        'type'     : settings.showcase_type_1 == 'all_products' ? 'available' : settings.showcase_type_1,
+        'quantity' : settings.showcase_native_quantity_1,
+        'newTitle' : settings.showcase_native_name_1,
+        'newOrder' : settings.showcase_native_order_1
+    } %}
+{% endif %}
+
+<!--Native Banners Extras 4-5-->
+{% if banners.extra4 or banners.extra5 %}
+    <div class="banners-grid banners-showcase group-native-banners">
+        <div class="container flex f-wrap justify-between">
+            {% for banner in [banners.extra4, banners.extra5] %}
+                {% if banner %}
+                    <div class="item">
+                        {% element 'snippets/banner' {
+                            image    : banner,
+                            padding  : true
+                        } %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- Vitrine nativa 2 -->
+{# Second showcase #}
+{% if settings.showcase_type_active_2 %}
+    {% element 'showcase' {
+        'rand'     : settings.showcase_rand_products,
+        'type'     : settings.showcase_type_2 == 'all_products' ? 'available' : settings.showcase_type_2,
+        'quantity' : settings.showcase_native_quantity_2,
+        'newTitle' : settings.showcase_native_name_2,
+        'newOrder' : settings.showcase_native_order_2
+    } %}
+{% endif %}
+
+<!--Native Banners Extras 6-7-->
+{% if banners.extra6 or banners.extra7 %}
+    <div class="banners-grid banners-showcase group-native-banners">
+        <div class="container flex f-wrap justify-between">
+            {% for banner in [banners.extra6, banners.extra7] %}
+                {% if banner %}
+                    <div class="item">
+                        {% element 'snippets/banner' {
+                            image    : banner,
+                            padding  : true
+                        } %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<!--Native Banners Extras 8-9-->
+{% if banners.extra8 or banners.extra9 %}
+    <div class="banners-grid banners-showcase group-native-banners">
+        <div class="container flex f-wrap justify-between">
+            {% for banner in [banners.extra8, banners.extra9] %}
+                {% if banner %}
+                    <div class="item">
+                        {% element 'snippets/banner' {
+                            image    : banner,
+                            padding  : true
+                        } %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}
+
+<!-- Aba de marcas custom do tempalte -->
+{% element 'snippets/brands-custom' %}
+
+<!-- Vitrine nativa 3 -->
+{# Third showcase #}
+{% if settings.showcase_type_active_3 %}
+    {% element 'showcase' {
+        'rand'     : settings.showcase_rand_products,
+        'type'     : settings.showcase_type_3 == 'all_products' ? 'available' : settings.showcase_type_3,
+        'quantity' : settings.showcase_native_quantity_3,
+        'newTitle' : settings.showcase_native_name_3,
+        'newOrder' : settings.showcase_native_order_3
+    } %}
+{% endif %}
+
+
+<!-- Video Home -->
+{% element 'snippets/video-home' %}
+
+<!-- Aba de marcas custom do template -->
+{% element 'snippets/store-news' %}
+
+{% for pages in pages.custom %}
+    {% if pages.info == "depoimentos_de_clientes" and settings.show_reviews %}
+        <div class="section-avaliacoes slide-has-dots">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="title-section">
+                        Depoimentos
+                    </h2>
+                </div>
+                {% element 'CustomerReview.reviews' %}
+            </div>
+        </div>
+    {% endif %}
+{% endfor %}
+
+<!-- Depoimentos Customizados -->
+{% element 'snippets/custom-reviews' %} 
+
+{% element 'instagram-template' %}
+
+<!-- Aba de marcas custom do template -->
+{% element 'snippets/custom-faq' %}

@@ -1,0 +1,44 @@
+{% if settings.sizes_active %}
+{% set lazy_class = swiper ? 'swiper-lazy' : 'lazyload' %}
+
+<div class="buy-sizes">
+    {% if settings.title_sizes %}
+    <div class="buy-sizes__title section-header">
+        <h2 class="title-section">{{ settings.title_sizes }}</h2>
+    </div>
+    {% endif %}
+    <div class="container swiper-container">
+        <div class="buy-sizes__content swiper-wrapper">
+            {% for i in 1..12 %}
+                
+                {% set link = attribute(settings, 'link_sizes_'~i) %}
+                
+                {% set image = attribute(settings, 'image_sizes_'~i) %}
+                
+                {% set title = attribute(settings, 'name_sizes_'~i) %}
+                
+                {% if image %}
+                <div class="item swiper-slide">
+                    <a {% if link %} href="{{ link }}" {% endif %}>
+                        <div class="buy-sizes__image">
+                            <img loading="lazy" class="lazyload" data-src="{{ asset(image) }}" alt="Compre por Categorias - {{ title }}"/>
+                        </div>
+                        <div class="buy-sizes__name">
+                            {{ title }}
+                        </div>
+                    </a>
+                </div>
+                {% endif %}
+                
+            {% endfor %}
+        </div>
+        <div class="prev">
+            <i class="icon icon-arrow-left"></i>
+        </div>
+        <div class="next">
+            <i class="icon icon-arrow-right"></i>
+        </div>
+        <div class="dots"></div>
+    </div>
+</div>
+{% endif %}

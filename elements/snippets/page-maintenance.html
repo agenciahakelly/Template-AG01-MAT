@@ -1,0 +1,284 @@
+{% if settings.store_maintenance_active %}
+    {% set whatsappNumber = Translation('ag_telefone_1') %}
+    {% set phone = Translation('ag_telefone_2') %}
+    {% set email = Translation('ag_email_1') %}
+    
+    <div class="page-maintenance">
+        <div class="page-maintenance__scroll">
+            <div class="page-maintenance__content">
+                <div class="page-maintenance__header">
+                    <div class="page-maintenance__h-left">
+                        {% if settings.store_maintenance_logo_active %}
+                            <img class="lazyload" data-src="{{ asset(settings.logo) }}" alt="{{ store.name }}" width="222" height="36">
+                        {% endif %}
+                    </div>
+                    {% if settings.store_maintenance_socials_active %}
+                    <div class="page-maintenance__h-right">
+                        {% element 'snippets/social-media' %}
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="page-maintenance__main">
+                    <div class="page-maintenance__text">
+                        <strong>{{ settings.store_maintenance_title }}</strong>
+                        <p>{{ settings.store_maintenance_subtitle }}</p>
+                    </div>
+                    <div class="page-maintenance__newsletter">
+                        <form class="form" action="/mvc/store/newsletter/" method="post">
+                            <input type="hidden" name="loja" value="{{ store.id }}">
+                            <input type="text" class="field" name="name" placeholder="Digite o seu nome" required spellcheck="false" autocomplete="off">
+                            <input type="email" class="field" name="email" placeholder="Digite seu e-mail" required spellcheck="false" autocomplete="off">
+                            <button type="submit" class="button news-button" title="Cadastrar" aria-label="Cadastrar">
+                                <span>Cadastre-se</span>
+                                <i class="icon icon-arrow-right"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="page-maintenance__contact">
+                        {% if settings.store_maintenance_title_contact %}
+                            <strong>{{ settings.store_maintenance_title_contact }}</strong>
+                        {% endif %}
+                        
+                        {% if settings.store_maintenance_contact_phone_active and phone %}
+                        <div class="contact__phone">
+                            {% set link = phone | replace({'(': '', ')': '', '-': '', ' ': ''}) %}
+                            <span>Telefone:</span>
+                            <a href="tel:{{ link }}" title="Telefone: {{ phone }}">
+                                <i class="icon icon-phone v-align-middle"></i>
+                                {{ phone }}
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                        {% if settings.store_maintenance_contact_whatsapp_active and whatsappNumber %}
+                        <div class="contact__whatsapp">
+                            <span>Whatsapp:</span>
+                            {% element 'snippets/whatsapp' { 'number': whatsappNumber, 'include_text' : false } %}
+                        </div>
+                        {% endif %}
+                        
+                        {% if settings.store_maintenance_contact_email_active and email %}
+                        <div class="contact__email">
+                            <span>E-mail:</span>
+                            <a href="mailto:{{ email }}" title="Email: {{ email }}">
+                                <i class="icon icon-email v-align-middle"></i>
+                                {{ email }}
+                            </a>
+                        </div>
+                        {% endif %}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        .application.maintenance-active {
+    display: none;
+}
+
+.page-maintenance .page-maintenance__content {
+    max-width: 1410px;
+    margin: 0 auto;
+    padding: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 75px;
+    flex-direction: column;
+    border-top: 1px solid var(--color_gray_medium);
+    margin-top: 25px;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__header .page-maintenance__h-left img {
+    max-height: 65px;
+    width: auto;
+    height: auto;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__text {
+    /* font-size: 25px; */
+    /* font-size: 25px; */
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__text strong {
+    font-size: 25px;
+    color: var(--color_primary);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__header .page-maintenance__h-right a {
+    font-size: 20px;
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    background: var(--color_primary);
+    color: #fff;
+    border-radius: 50px;
+    margin: 0 0 0 10px;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__header .page-maintenance__h-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__m-right img {
+    /* max-width: 400px; */
+}
+
+.page-maintenance .page-maintenance__content svg {
+    color: #fff;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__text {
+    max-width: 700px;
+    font-size: 21px;
+    text-align: center;
+    line-height: normal;
+    width: 100%;
+    padding-bottom: 15px;
+}
+
+.page-maintenance {
+    position: fixed;
+    width: 100%;
+    left: 0;
+    top: 0;
+    z-index: 99999999999999999999;
+    height: 100%;
+    background: #fff;
+    overflow: auto;
+}
+
+
+.page-maintenance .page-maintenance__scroll {
+    height: 100%;
+    overflow: auto;
+}
+
+.page-maintenance .page-maintenance__scroll::-webkit-scrollbar {
+    width: 0px;
+}
+.page-maintenance__newsletter {
+    width: 100%;
+    max-width: 450px;
+}
+
+.page-maintenance__newsletter form.form {
+    flex-direction: column;
+    display: flex;
+}
+
+.page-maintenance__newsletter form.form input {
+    padding: 12px 25px;
+    margin-bottom: 8px;
+}
+
+.page-maintenance__newsletter form.form button.button.news-button {
+    background: var(--color_secondary_medium);
+    padding: 15px;
+    color: #fff;
+    border-radius: var(--border_radius_buttons);
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    text-transform: uppercase;
+    gap: 0 15px;
+}
+
+.page-maintenance__newsletter form.form button.button.news-button .icon {
+    position: relative;
+    top: -1px;
+}
+
+body:has(.page-maintenance) {
+    overflow: hidden;
+}
+.page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__contact {
+    padding-top: 20px;
+    text-align: center;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__contact>strong {
+    font-size: 25px;
+    color: var(--color_primary);
+    font-weight: 700;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__contact>div {
+    margin-bottom: 8px;
+    font-size: 19px;
+}
+.page-maintenance .page-maintenance__content .page-maintenance__header:has(.page-maintenance__h-left:last-child) {
+    justify-content: center;
+}
+.page-maintenance .page-maintenance__content .page-maintenance__header:has(.page-maintenance__h-right:first-child) {
+    justify-content: center;
+}
+.page-maintenance {
+    border-bottom: 15px solid var(--color_primary);
+}
+@media(max-width:768px){
+    .page-maintenance .page-maintenance__content .page-maintenance__header .page-maintenance__h-left img {
+        max-height: 55px;
+    }
+    
+    .page-maintenance .page-maintenance__content .page-maintenance__main {
+        padding-top: 15px;
+    }
+    
+    .page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__text {
+        width: 100%;
+    }
+    
+    .page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__m-right {
+        order: -1;
+        padding-left: 2px;
+        padding-bottom: 25px;
+    }
+    
+    .page-maintenance .page-maintenance__content {
+        height: 100%;
+    }
+    
+    .page-maintenance .page-maintenance__content .page-maintenance__main .page-maintenance__m-right img {
+        max-height: 65px;
+    }
+    .page-maintenance .page-maintenance__content .page-maintenance__header {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .page-maintenance .page-maintenance__content .page-maintenance__header .page-maintenance__h-right a {
+        margin: 5px;
+    }
+    
+    .page-maintenance .page-maintenance__content .page-maintenance__header .page-maintenance__h-right {
+        margin-top: 15px;
+    }
+}
+
+    </style>
+{% endif %}
